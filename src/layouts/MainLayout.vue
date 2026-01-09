@@ -12,6 +12,9 @@
         <AppHeader />
       </el-header>
       
+      <!-- 标签页栏 -->
+      <TagsView />
+      
       <!-- 主内容 -->
       <el-main>
         <router-view v-slot="{ Component }">
@@ -29,6 +32,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '@/stores/app'
 import AppSidebar from '@/components/common/AppSidebar.vue'
 import AppHeader from '@/components/common/AppHeader.vue'
+import TagsView from '@/components/common/TagsView.vue'
 
 const appStore = useAppStore()
 

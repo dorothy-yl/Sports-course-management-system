@@ -2,10 +2,8 @@
   <div class="login-container">
     <div class="login-box">
       <div class="login-header">
-        <el-icon :size="48" color="#409eff">
-          <VideoPlay />
-        </el-icon>
-        <h1 class="login-title">课程管理系统</h1>
+        
+        <h1 class="login-title">欢迎登录</h1>
       </div>
       
       <el-form

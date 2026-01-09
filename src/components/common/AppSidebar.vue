@@ -7,9 +7,9 @@
       </el-icon>
       <template v-else>
         <el-icon :size="28" color="#fff">
-          <VideoPlay />
+          <Tickets />
         </el-icon>
-        <span class="logo-title">视频管理</span>
+        <span class="logo-title">课程管理系统</span>
       </template>
     </div>
     
