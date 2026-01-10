@@ -13,18 +13,18 @@
         <!-- 基础信息 -->
         <el-divider content-position="left">基础信息</el-divider>
         
-        <el-form-item label="封面图片URL" prop="title">
+        <el-form-item label="封面图片URL" prop="thumbnailUrl">
           <el-input
-            v-model="formData.title"
+            v-model="formData.thumbnailUrl"
             placeholder="请输入URL"
             maxlength="100"
             show-word-limit
           />
         </el-form-item>
         
-         <el-form-item label="封面视频URL" prop="title">
+         <el-form-item label="封面视频URL" prop="coverVideo">
           <el-input
-            v-model="formData.title"
+            v-model="formData.coverVideo"
             placeholder="请输入URL"
             maxlength="100"
             show-word-limit
@@ -46,9 +46,9 @@
           </el-select>
         </el-form-item>
 
-          <el-form-item label="课程视频URL" prop="title">
+          <el-form-item label="课程视频URL" prop="videoUrl">
           <el-input
-            v-model="formData.title"
+            v-model="formData.videoUrl"
             placeholder="请输入URL"
             maxlength="100"
             show-word-limit
@@ -97,10 +97,10 @@ const formData = reactive({
 })
 
 const rules = {
-  title: [required('请输入URL')],
+  thumbnailUrl: [required('请输入封面图片URL')], // 对应封面图片
+  coverVideo: [required('请输入封面视频URL')], // 对应封面视频
+  videoUrl: [required('请输入课程视频URL')],     // 对应主视频
   type: [required('请选择设备类型')],
-  videoUrl: [required('请上传视频文件')],
-  thumbnailUrl: [required('请上传缩略图')],
   segments: [
     {
       validator: (rule, value, callback) => {

@@ -72,7 +72,7 @@
       >
         <el-table-column type="index" label="序号" width="80"  align="center"/>
         
-        <el-table-column label="缩略图" width="200" align="center" >
+        <el-table-column label="视频封面缩略图" width="200" align="center" >
           <template #default="{ row }">
             <el-image
               v-if="row.thumbnailUrl"
@@ -85,9 +85,9 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="title" label="课程标题" min-width="180" align="center" show-overflow-tooltip />
+        <el-table-column prop="title" label="课程名称" min-width="180" align="center" show-overflow-tooltip />
         
-        <el-table-column label="课程类型" width="150" align="center">
+        <el-table-column label="课程介绍" width="150" align="center">
           <template #default="{ row }">
             <el-tag :type="getCourseTypeTag(row.type)">
               {{ getCourseTypeName(row.type) }}
@@ -95,7 +95,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="总时长" width="150">
+        <el-table-column label="课程总时长" width="150">
           <template #default="{ row }">
             {{ formatSeconds(row.duration) }}
           </template>
