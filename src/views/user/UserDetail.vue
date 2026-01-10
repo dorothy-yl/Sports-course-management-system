@@ -28,20 +28,8 @@
           {{ userInfo?.weight }} kg
         </el-descriptions-item>
         
-        <el-descriptions-item label="地区">
-          <el-tag :type="userInfo?.region === 'domestic' ? 'success' : 'info'">
-            {{ getRegionName(userInfo?.region) }}
-          </el-tag>
-        </el-descriptions-item>
-        
-        <el-descriptions-item label="VIP状态">
-          <el-tag :type="userInfo?.isVip ? 'success' : 'info'">
-            {{ userInfo?.isVip ? 'VIP用户' : '普通用户' }}
-          </el-tag>
-        </el-descriptions-item>
-        
-        <el-descriptions-item label="VIP到期时间" v-if="userInfo?.isVip">
-          {{ formatDate(userInfo?.vipExpireDate) }}
+        <el-descriptions-item label="地址" :span="2">
+          {{ formatAddress(userInfo?.address) }}
         </el-descriptions-item>
         
         <el-descriptions-item label="登录方式" :span="2">
@@ -65,7 +53,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getUserDetail } from '@/api/user'
-import { formatDate, formatDateOnly, getGenderName, getRegionName } from '@/utils/format'
+import { formatDate, formatDateOnly, getGenderName } from '@/utils/format'
 import dayjs from 'dayjs'
 
 const route = useRoute()
@@ -94,6 +82,21 @@ const getLoginMethodName = (type) => {
   return map[type] || type
 }
 
+// 格式化地址
+const formatAddress = (address) => {
+  if (!address) return '-'
+  
+  if (address.type === 'domestic') {
+    // 国内：[省] - [市] - [区/县] - [详细地址]
+    const parts = [address.province, address.city, address.district, address.detail].filter(Boolean)
+    return parts.join(' - ')
+  } else {
+    // 国外：[国家] - [城市/州]
+    const parts = [address.country, address.city].filter(Boolean)
+    return parts.join(' - ')
+  }
+}
+
 // 获取用户详情
 const fetchUserDetail = async () => {
   loading.value = true
@@ -109,13 +112,17 @@ const fetchUserDetail = async () => {
       birthday: '1990-05-15',
       height: 175,
       weight: 70,
-      region: 'domestic',
+      address: {
+        type: 'domestic',
+        province: '北京市',
+        city: '北京',
+        district: '朝阳区',
+        detail: 'XX街道88号'
+      },
       loginMethods: [
         { type: 'phone', identifier: '13800138000' },
         { type: 'wechat', identifier: 'wx_zhangsan' }
-      ],
-      isVip: true,
-      vipExpireDate: dayjs().add(6, 'month').toISOString()
+      ]
     }
   } catch (error) {
     ElMessage.error('获取用户详情失败')

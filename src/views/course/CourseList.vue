@@ -4,25 +4,31 @@
       <!-- 搜索和操作栏 -->
       <div class="toolbar">
         <div class="toolbar-left">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索课程标题"
-            style="width: 250px"
+          <el-select
+            v-model="filterDeviceType"
+            placeholder="设备类型"
+            style="width: 200px"
             clearable
-            @clear="handleSearch"
+            @change="handleSearch"
           >
             <template #prefix>
-              <el-icon><Search /></el-icon>
+              <el-icon><Paperclip /></el-icon>
             </template>
-          </el-input>
+            <el-option label="跑步机" :value="0" />
+            <el-option label="脚踏车" :value="1" />
+            <el-option label="划船机" :value="2" />
+          </el-select>
           
           <el-select
             v-model="filterType"
             placeholder="课程类型"
-            style="width: 150px"
+            style="width: 200px"
             clearable
             @change="handleSearch"
           >
+          <template #prefix>
+            <el-icon><Reading /></el-icon>
+            </template>
             <el-option
               v-for="item in COURSE_TYPE_OPTIONS"
               :key="item.value"
@@ -30,11 +36,21 @@
               :value="item.value"
             />
           </el-select>
-          
-          <el-button type="primary" @click="handleSearch">
-            <el-icon><Search /></el-icon>
-            搜索
-          </el-button>
+
+           <el-select
+            v-model="filterLangCode"
+            placeholder="语言编码"
+            style="width: 150px"
+            clearable
+            @change="handleSearch"
+          >
+           <template #prefix>
+            <el-icon><Service /></el-icon>
+             </template>
+             <el-option label="中文" :value="0" />
+             <el-option label="英文" :value="1" />
+          </el-select>
+        
         </div>
         
         <div class="toolbar-right">
@@ -54,9 +70,9 @@
         stripe
         style="width: 100%"
       >
-        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column type="index" label="序号" width="80"  align="center"/>
         
-        <el-table-column label="缩略图" width="120">
+        <el-table-column label="缩略图" width="200" align="center" >
           <template #default="{ row }">
             <el-image
               v-if="row.thumbnailUrl"
@@ -69,9 +85,9 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="title" label="课程标题" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="title" label="课程标题" min-width="180" align="center" show-overflow-tooltip />
         
-        <el-table-column label="课程类型" width="120">
+        <el-table-column label="课程类型" width="150" align="center">
           <template #default="{ row }">
             <el-tag :type="getCourseTypeTag(row.type)">
               {{ getCourseTypeName(row.type) }}
@@ -79,25 +95,25 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="总时长" width="100">
+        <el-table-column label="总时长" width="150">
           <template #default="{ row }">
             {{ formatSeconds(row.duration) }}
           </template>
         </el-table-column>
         
-        <el-table-column label="分段数" width="100">
+        <el-table-column label="分段数" width="100" align="center">
           <template #default="{ row }">
             {{ row.segments?.length || 0 }}
           </template>
         </el-table-column>
         
-        <el-table-column label="创建时间" width="160">
+        <el-table-column label="创建时间" width="200" align="center">
           <template #default="{ row }">
             {{ formatDate(row.createdAt) }}
           </template>
         </el-table-column>
         
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right" align="center">
           <template #default="{ row }">
             <div class="table-actions">
               <el-button type="primary" size="small" link @click="handlePreview(row)">
@@ -144,6 +160,8 @@ const loading = ref(false)
 const courseList = ref([])
 const searchKeyword = ref('')
 const filterType = ref('')
+const filterDeviceType = ref('')
+const filterLangCode = ref('')
 
 const pagination = reactive({
   page: 1,
@@ -154,9 +172,14 @@ const pagination = reactive({
 // 获取课程类型标签颜色
 const getCourseTypeTag = (type) => {
   const map = {
-    'Treadmill': 'success',
-    'Cycling': 'warning',
-    'Rowing': 'info'
+    0: 'success',   // 跑步机
+    1: 'warning',   // 脚踏车
+    2: 'info',      // 划船机
+    3: 'danger',    // 力量训练
+    4: '',          // HIIT训练
+    5: 'success',   // 瑜伽
+    6: 'info',      // 冥想
+    7: ''           // 其他
   }
   return map[type] || ''
 }
@@ -168,52 +191,47 @@ const fetchCourseList = async () => {
     const params = {
       page: pagination.page,
       pageSize: pagination.pageSize,
-      keyword: searchKeyword.value,
+      deviceType: filterDeviceType.value,
+      langCode: filterLangCode.value,
       type: filterType.value
     }
     
-    // 模拟数据（实际应调用 API）
-    // const res = await getCourseList(params)
-    // courseList.value = res.list
-    // pagination.total = res.total
+    const res = await getCourseList(params)
     
-    // 模拟数据
-    const mockData = generateMockCourses()
-    courseList.value = mockData.slice(
-      (pagination.page - 1) * pagination.pageSize,
-      pagination.page * pagination.pageSize
-    )
-    pagination.total = mockData.length
+    // 适配后端返回的数据结构
+    if (res && res.rows) {
+      // 映射后端字段到前端字段
+      courseList.value = res.rows.map(item => ({
+        id: item.proCourseId,
+        title: item.courseName,
+        type: item.courseType,
+        videoUrl: item.videoUrl1,
+        thumbnailUrl: item.coverImage,
+        coverVideo: item.coverVideo,
+        duration: item.duration,
+        segments: [], // 后端可能没有返回 segments，需要单独获取
+        createdAt: item.createTime,
+        updatedAt: item.createTime,
+        // 保留其他可能用到的字段
+        courseAdvice: item.courseAdvice,
+        taboGroups: item.taboGroups,
+        userGroup: item.userGroup,
+        caloriesValue: item.caloriesValue,
+        introduction: item.introduction
+      }))
+      pagination.total = res.total
+    } else {
+      courseList.value = []
+      pagination.total = 0
+    }
   } catch (error) {
+    console.error('获取课程列表失败:', error)
     ElMessage.error('获取课程列表失败')
+    courseList.value = []
+    pagination.total = 0
   } finally {
     loading.value = false
   }
-}
-
-// 生成模拟课程数据
-const generateMockCourses = () => {
-  const types = ['Treadmill', 'Cycling', 'Rowing']
-  const courses = []
-  
-  for (let i = 1; i <= 25; i++) {
-    courses.push({
-      id: `course-${i}`,
-      title: `课程 ${i} - ${['入门基础', '进阶训练', '高级挑战', '专业特训'][i % 4]}`,
-      type: types[i % 3],
-      videoUrl: `https://example.com/video/${i}.mp4`,
-      thumbnailUrl: `https://picsum.photos/200/120?random=${i}`,
-      duration: 1800 + i * 60,
-      segments: [
-        { id: `seg-${i}-1`, startTime: 0, endTime: 600, speed: 5, incline: 0 },
-        { id: `seg-${i}-2`, startTime: 600, endTime: 1200, speed: 8, incline: 2 }
-      ],
-      createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-      updatedAt: new Date().toISOString()
-    })
-  }
-  
-  return courses
 }
 
 // 搜索

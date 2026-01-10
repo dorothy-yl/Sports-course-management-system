@@ -2,10 +2,19 @@ import request from './request'
 
 // 获取课程列表
 export const getCourseList = (params) => {
+  // 参数映射：前端参数转换为后端所需格式
+  const mappedParams = {
+    deviceType: params.deviceType || 0,
+    langCode: params.langCode || 0,
+    pageNum: params.page || 1,
+    pageSize: params.pageSize || 10,
+    type: params.type || 0
+  }
+  
   return request({
-    url: '/courses',
+    url: '/system/course/getCourse',
     method: 'get',
-    params
+    params: mappedParams
   })
 }
 

@@ -23,12 +23,12 @@
           <div class="stat-content">
             <div class="stat-icon" style="background: #fff0e6">
               <el-icon :size="32" color="#fa8c16">
-                <StarFilled />
+                <Location />
               </el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats.vipUsers }}</div>
-              <div class="stat-label">VIP 用户数</div>
+              <div class="stat-value">{{ stats.domesticUsers }}</div>
+              <div class="stat-label">国内用户数</div>
             </div>
           </div>
         </el-card>
@@ -124,7 +124,7 @@ let userGrowthLineChart = null
 
 const stats = reactive({
   totalUsers: 0,
-  vipUsers: 0,
+  domesticUsers: 0,
   totalCourses: 0,
   todayViews: 0
 })
@@ -139,7 +139,7 @@ const fetchStats = async () => {
     
     // 模拟数据
     stats.totalUsers = 12580
-    stats.vipUsers = 3256
+    stats.domesticUsers = 8923
     stats.totalCourses = 468
     stats.todayViews = 8923
   } catch (error) {

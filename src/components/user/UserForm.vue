@@ -60,27 +60,103 @@
         </el-col>
       </el-row>
       
-      <el-form-item label="地区" prop="region">
-        <el-select
-          v-model="formData.region"
-          placeholder="请选择地区"
-          style="width: 100%"
-        >
-          <el-option
-            v-for="item in REGION_OPTIONS"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+      <el-form-item label="地区类型" prop="addressType">
+        <el-radio-group v-model="formData.addressType">
+          <el-radio label="domestic">国内</el-radio>
+          <el-radio label="international">国外</el-radio>
+        </el-radio-group>
       </el-form-item>
+      
+      <!-- 国内地址 -->
+      <template v-if="formData.addressType === 'domestic'">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="省" prop="province">
+              <el-select
+                v-model="formData.province"
+                placeholder="请选择省份"
+                style="width: 100%"
+                filterable
+              >
+                <el-option
+                  v-for="item in CHINA_PROVINCES"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          
+          <el-col :span="12">
+            <el-form-item label="市" prop="city">
+              <el-input
+                v-model="formData.city"
+                placeholder="请输入城市"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="区/县" prop="district">
+              <el-input
+                v-model="formData.district"
+                placeholder="请输入区/县"
+              />
+            </el-form-item>
+          </el-col>
+          
+          <el-col :span="12">
+            <el-form-item label="详细地址" prop="detail">
+              <el-input
+                v-model="formData.detail"
+                placeholder="请输入详细地址"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </template>
+      
+      <!-- 国外地址 -->
+      <template v-else>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="国家" prop="country">
+              <el-select
+                v-model="formData.country"
+                placeholder="请选择国家"
+                style="width: 100%"
+                filterable
+              >
+                <el-option
+                  v-for="item in COUNTRIES"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          
+          <el-col :span="12">
+            <el-form-item label="城市/州" prop="city">
+              <el-input
+                v-model="formData.city"
+                placeholder="请输入城市或州"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </template>
     </el-form>
   </div>
 </template>
 
 <script setup>
 import { reactive } from 'vue'
-import { GENDER_OPTIONS, REGION_OPTIONS } from '@/constants'
+import { GENDER_OPTIONS, CHINA_PROVINCES, COUNTRIES } from '@/constants'
 import { required } from '@/utils/validate'
 
 const formData = reactive({
@@ -89,7 +165,14 @@ const formData = reactive({
   birthday: '',
   height: 170,
   weight: 60,
-  region: ''
+  addressType: 'domestic',
+  // 国内地址字段
+  province: '',
+  city: '',
+  district: '',
+  detail: '',
+  // 国外地址字段
+  country: ''
 })
 
 const rules = {
@@ -98,7 +181,7 @@ const rules = {
   birthday: [required('请选择生日')],
   height: [required('请输入身高')],
   weight: [required('请输入体重')],
-  region: [required('请选择地区')]
+  addressType: [required('请选择地区类型')]
 }
 </script>
 

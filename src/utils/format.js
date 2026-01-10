@@ -39,11 +39,16 @@ export const formatFileSize = (bytes) => {
 // 获取课程类型中文名
 export const getCourseTypeName = (type) => {
   const map = {
-    'Treadmill': '跑步机课程',
-    'Cycling': '脚踏车课程',
-    'Rowing': '划船机课程'
+    0: '跑步机课程',
+    1: '脚踏车课程',
+    2: '划船机课程',
+    3: '力量训练',
+    4: 'HIIT训练',
+    5: '瑜伽',
+    6: '冥想',
+    7: '其他'
   }
-  return map[type] || type
+  return map[type] || '未知类型'
 }
 
 // 获取性别中文名
@@ -56,11 +61,3 @@ export const getGenderName = (gender) => {
   return map[gender] || gender
 }
 
-// 获取地区中文名
-export const getRegionName = (region) => {
-  const map = {
-    'domestic': '国内',
-    'international': '国外'
-  }
-  return map[region] || region
-}

@@ -43,15 +43,6 @@ export const deleteUser = (id) => {
   })
 }
 
-// 切换 VIP 状态
-export const toggleVipStatus = (id, isVip) => {
-  return request({
-    url: `/users/${id}/vip`,
-    method: 'put',
-    data: { isVip }
-  })
-}
-
 // 获取用户统计数据
 export const getUserStats = () => {
   return request({

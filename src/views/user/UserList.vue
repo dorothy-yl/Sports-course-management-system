@@ -17,29 +17,18 @@
           </el-input>
           
           <el-select
-            v-model="filterRegion"
-            placeholder="地区"
+            v-model="filterRegionType"
+            placeholder="地区类型"
             style="width: 120px"
             clearable
             @change="handleSearch"
           >
             <el-option
-              v-for="item in REGION_OPTIONS"
+              v-for="item in REGION_TYPE_OPTIONS"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             />
-          </el-select>
-          
-          <el-select
-            v-model="filterVip"
-            placeholder="VIP状态"
-            style="width: 120px"
-            clearable
-            @change="handleSearch"
-          >
-            <el-option label="VIP用户" :value="true" />
-            <el-option label="普通用户" :value="false" />
           </el-select>
           
           <el-button type="primary" @click="handleSearch">
@@ -58,37 +47,35 @@
         stripe
         style="width: 100%"
       >
-        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column type="index" label="序号" width="100" align="center" />
         
-        <el-table-column prop="nickname" label="昵称" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="nickname" label="昵称" width="100" show-overflow-tooltip />
         
-        <el-table-column label="性别" width="80">
+        <el-table-column label="性别" width="100" align="center">
           <template #default="{ row }">
             {{ getGenderName(row.gender) }}
           </template>
         </el-table-column>
         
-        <el-table-column label="年龄" width="80">
+        <el-table-column label="年龄" width="100" align="center">
           <template #default="{ row }">
             {{ calculateAge(row.birthday) }}
           </template>
         </el-table-column>
         
-        <el-table-column label="身高/体重" width="120">
+        <el-table-column label="身高/体重" width="160" align="center">
           <template #default="{ row }">
             {{ row.height }}cm / {{ row.weight }}kg
           </template>
         </el-table-column>
         
-        <el-table-column label="地区" width="80">
+        <el-table-column label="地区" width="490" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.region === 'domestic' ? 'success' : 'info'" size="small">
-              {{ getRegionName(row.region) }}
-            </el-tag>
+            {{ formatAddress(row.address) }}
           </template>
         </el-table-column>
         
-        <el-table-column label="登录方式" min-width="150">
+        <el-table-column label="登录方式" width="400">
           <template #default="{ row }">
             <div style="display: flex; flex-wrap: wrap; gap: 4px;">
               <el-tag
@@ -103,22 +90,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="VIP状态" width="100">
-          <template #default="{ row }">
-            <el-switch
-              v-model="row.isVip"
-              @change="handleToggleVip(row)"
-            />
-          </template>
-        </el-table-column>
-        
-        <el-table-column label="VIP到期时间" width="160">
-          <template #default="{ row }">
-            {{ row.isVip && row.vipExpireDate ? formatDate(row.vipExpireDate) : '-' }}
-          </template>
-        </el-table-column>
-        
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right" align="center">
           <template #default="{ row }">
             <div class="table-actions">
               <el-button type="primary" size="small" link @click="handleView(row)">
@@ -163,9 +135,9 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUserList, deleteUser, toggleVipStatus } from '@/api/user'
-import { formatDate, getGenderName, getRegionName } from '@/utils/format'
-import { REGION_OPTIONS } from '@/constants'
+import { getUserList, deleteUser } from '@/api/user'
+import { formatDate, getGenderName } from '@/utils/format'
+import { REGION_TYPE_OPTIONS } from '@/constants'
 import UserDialog from './UserDialog.vue'
 import dayjs from 'dayjs'
 
@@ -174,8 +146,7 @@ const router = useRouter()
 const loading = ref(false)
 const userList = ref([])
 const searchKeyword = ref('')
-const filterRegion = ref('')
-const filterVip = ref('')
+const filterRegionType = ref('')
 const dialogVisible = ref(false)
 const dialogMode = ref('view')
 const currentUserId = ref('')
@@ -206,6 +177,21 @@ const getLoginMethodName = (type) => {
   return map[type] || type
 }
 
+// 格式化地址
+const formatAddress = (address) => {
+  if (!address) return '-'
+  
+  if (address.type === 'domestic') {
+    // 国内：[省] - [市] - [区/县] - [详细地址]
+    const parts = [address.province, address.city, address.district, address.detail].filter(Boolean)
+    return parts.join(' - ')
+  } else {
+    // 国外：[国家] - [城市/州]
+    const parts = [address.country, address.city].filter(Boolean)
+    return parts.join(' - ')
+  }
+}
+
 // 获取用户列表
 const fetchUserList = async () => {
   loading.value = true
@@ -214,8 +200,7 @@ const fetchUserList = async () => {
       page: pagination.page,
       pageSize: pagination.pageSize,
       keyword: searchKeyword.value,
-      region: filterRegion.value,
-      isVip: filterVip.value
+      regionType: filterRegionType.value
     }
     
     // 模拟数据（实际应调用 API）
@@ -241,12 +226,15 @@ const fetchUserList = async () => {
 const generateMockUsers = () => {
   const users = []
   const genders = ['male', 'female']
-  const regions = ['domestic', 'international']
   const names = ['张三', '李四', '王五', '赵六', 'John', 'Jane', 'Mike', 'Lucy']
+  const provinces = ['北京市', '上海市', '广东省', '浙江省', '江苏省']
+  const cities = ['北京', '上海', '广州', '杭州', '南京']
+  const districts = ['朝阳区', '浦东新区', '天河区', '西湖区', '玄武区']
+  const countries = ['美国', '加拿大', '英国', '澳大利亚', '日本']
+  const foreignCities = ['纽约', '多伦多', '伦敦', '悉尼', '东京']
   
   for (let i = 1; i <= 50; i++) {
-    const region = regions[i % 2]
-    const isDomestic = region === 'domestic'
+    const isDomestic = i % 2 === 1
     
     const loginMethods = []
     if (isDomestic) {
@@ -257,6 +245,19 @@ const generateMockUsers = () => {
       if (i % 3 === 0) loginMethods.push({ type: 'google', identifier: `google_${i}` })
     }
     
+    // 生成地址
+    const address = isDomestic ? {
+      type: 'domestic',
+      province: provinces[i % provinces.length],
+      city: cities[i % cities.length],
+      district: districts[i % districts.length],
+      detail: `XX街道${i}号`
+    } : {
+      type: 'international',
+      country: countries[i % countries.length],
+      city: foreignCities[i % foreignCities.length]
+    }
+    
     users.push({
       id: `user-${i}`,
       nickname: `${names[i % names.length]}${i}`,
@@ -264,10 +265,8 @@ const generateMockUsers = () => {
       birthday: `199${i % 10}-0${(i % 9) + 1}-15`,
       height: 160 + (i % 30),
       weight: 50 + (i % 40),
-      region,
-      loginMethods,
-      isVip: i % 4 === 0,
-      vipExpireDate: i % 4 === 0 ? dayjs().add(i % 12, 'month').toISOString() : null
+      address,
+      loginMethods
     })
   }
   
@@ -315,22 +314,6 @@ const handleDelete = (user) => {
   }).catch(() => {
     // 取消删除
   })
-}
-
-// 切换 VIP 状态
-const handleToggleVip = async (user) => {
-  try {
-    // await toggleVipStatus(user.id, user.isVip)
-    ElMessage.success(`已${user.isVip ? '开通' : '关闭'}VIP`)
-    
-    // 如果开通 VIP，设置默认到期时间
-    if (user.isVip && !user.vipExpireDate) {
-      user.vipExpireDate = dayjs().add(1, 'year').toISOString()
-    }
-  } catch (error) {
-    ElMessage.error('操作失败')
-    user.isVip = !user.isVip // 恢复状态
-  }
 }
 
 onMounted(() => {
