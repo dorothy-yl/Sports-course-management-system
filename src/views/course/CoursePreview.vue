@@ -1,6 +1,6 @@
 <template>
   <div class="course-preview-container">
-    <el-page-header @back="handleBack" content="课程预览" />
+    <el-page-header @back="handleBack" content="课程详情" />
     
     <el-card class="page-card" style="margin-top: 20px" v-loading="loading">
       <el-row :gutter="20">
@@ -129,8 +129,8 @@ const fetchCourseDetail = async () => {
       id: route.params.id,
       title: '模拟课程 - 入门基础训练',
       type: 'Treadmill',
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      thumbnailUrl: 'https://picsum.photos/400/240?random=1',
+      videoUrl: 'https://oss.bosfits.com/iconsolePro/CourseVideoImage/20260110/ed8d4ecddd8142b3a5557deac2068b60.mp4',
+      thumbnailUrl: 'https://oss.bosfits.com/iconsolePro/CourseVideoImage/20260110/ed8d4ecddd8142b3a5557deac2068b60.mp4',
       duration: 1200,
       segments: [
         {

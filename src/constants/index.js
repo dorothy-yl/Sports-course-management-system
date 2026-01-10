@@ -11,16 +11,10 @@ export const COURSE_TYPES = {
 }
 
 export const COURSE_TYPE_OPTIONS = [
-  { label: '燃脂', value: 0 },
-  { label: '健步走', value: 1 },
-  { label: '跑走结合', value: 2 },
-  { label: '基础', value: 3 },
-  { label: 'HIIT', value: 4 },
-  { label: '冲刺', value: 5 },
-  { label: '耐力', value: 6 },
-  { label: '高强度', value: 7 },
-  { label: '恢复', value: 8 },
-  { label: '其他', value: 9 }
+  { label: '跑步机', value: 0 },
+  { label: '脚踏车', value: 1 },
+  { label: '划船机', value: 2 }
+
 ]
 
 export const COURSE_TYPE_NAMES = {

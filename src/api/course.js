@@ -67,3 +67,12 @@ export const getCourseHotRanking = () => {
     method: 'get'
   })
 }
+
+// 新增课程
+export const addProCourse = (data) => {
+  return request({
+    url: '/system/course/addProCourse',
+    method: 'post',
+    data
+  })
+}

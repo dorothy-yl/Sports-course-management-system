@@ -41,7 +41,7 @@ const routes = [
         path: 'courses/create',
         name: 'CourseCreate',
         component: () => import('@/views/course/CourseEditor.vue'),
-        meta: { title: '创建课程', icon: 'VideoPlay', hidden: true }
+        meta: { title: '新增课程', icon: 'VideoPlay', hidden: true }
       },
       {
         path: 'courses/edit/:id',
@@ -53,7 +53,7 @@ const routes = [
         path: 'courses/preview/:id',
         name: 'CoursePreview',
         component: () => import('@/views/course/CoursePreview.vue'),
-        meta: { title: '课程预览', icon: 'VideoPlay', hidden: true }
+        meta: { title: '课程详情', icon: 'VideoPlay', hidden: true }
       },
       {
         path: 'media',

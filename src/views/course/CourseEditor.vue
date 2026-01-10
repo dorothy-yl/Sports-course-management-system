@@ -1,6 +1,6 @@
 <template>
   <div class="course-editor-container">
-    <el-page-header @back="handleBack" :content="isEdit ? '编辑课程' : '创建课程'" />
+    <el-page-header @back="handleBack" :content="isEdit ? '编辑课程' : '新增课程'" />
     
     <el-card class="page-card" style="margin-top: 20px">
       <el-form
@@ -13,19 +13,27 @@
         <!-- 基础信息 -->
         <el-divider content-position="left">基础信息</el-divider>
         
-        <el-form-item label="课程标题" prop="title">
+        <el-form-item label="封面图片URL" prop="title">
           <el-input
             v-model="formData.title"
-            placeholder="请输入课程标题"
+            placeholder="请输入URL"
             maxlength="100"
             show-word-limit
           />
         </el-form-item>
         
-        <el-form-item label="课程类型" prop="type">
+         <el-form-item label="封面视频URL" prop="title">
+          <el-input
+            v-model="formData.title"
+            placeholder="请输入URL"
+            maxlength="100"
+            show-word-limit
+          />
+        </el-form-item>
+         <el-form-item label="设备类型" prop="type">
           <el-select
             v-model="formData.type"
-            placeholder="请选择课程类型"
+            placeholder="请选择类型"
             style="width: 100%"
             @change="handleTypeChange"
           >
@@ -37,29 +45,20 @@
             />
           </el-select>
         </el-form-item>
-        
-        <el-form-item label="视频文件" prop="videoUrl">
-          <VideoUpload v-model="formData.videoUrl" />
-        </el-form-item>
-        
-        <el-form-item label="缩略图" prop="thumbnailUrl">
-          <ImageUpload v-model="formData.thumbnailUrl" />
-        </el-form-item>
-        
-        <!-- 分段设置 -->
-        <el-divider content-position="left">分段设置</el-divider>
-        
-        <el-form-item label="" prop="segments">
-          <SegmentEditor
-            v-model="formData.segments"
-            :course-type="formData.type"
+
+          <el-form-item label="课程视频URL" prop="title">
+          <el-input
+            v-model="formData.title"
+            placeholder="请输入URL"
+            maxlength="100"
+            show-word-limit
           />
         </el-form-item>
         
         <!-- 操作按钮 -->
         <el-form-item>
           <el-button type="primary" @click="handleSubmit" :loading="submitting">
-            {{ isEdit ? '保存' : '创建' }}
+            {{ isEdit ? '保存' : '确定' }}
           </el-button>
           <el-button @click="handleBack">取消</el-button>
           <el-button v-if="isEdit" type="info" @click="handlePreview">预览</el-button>
@@ -73,7 +72,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getCourseDetail, createCourse, updateCourse } from '@/api/course'
+import { getCourseDetail, createCourse, updateCourse, addProCourse } from '@/api/course'
 import { COURSE_TYPE_OPTIONS } from '@/constants'
 import { required } from '@/utils/validate'
 import SegmentEditor from '@/components/course/SegmentEditor.vue'
@@ -93,12 +92,13 @@ const formData = reactive({
   type: '',
   videoUrl: '',
   thumbnailUrl: '',
+  coverVideo: '',
   segments: []
 })
 
 const rules = {
-  title: [required('请输入课程标题')],
-  type: [required('请选择课程类型')],
+  title: [required('请输入URL')],
+  type: [required('请选择设备类型')],
   videoUrl: [required('请上传视频文件')],
   thumbnailUrl: [required('请上传缩略图')],
   segments: [
@@ -173,19 +173,28 @@ const handleSubmit = async () => {
     
     submitting.value = true
     try {
-      // 计算总时长
-      const duration = Math.max(...formData.segments.map(s => s.endTime))
-      
-      const data = {
-        ...formData,
-        duration
-      }
-      
       if (isEdit.value) {
+        // 计算总时长
+        const duration = Math.max(...formData.segments.map(s => s.endTime))
+        
+        const data = {
+          ...formData,
+          duration
+        }
+        
         // await updateCourse(route.params.id, data)
         ElMessage.success('更新成功')
       } else {
-        // await createCourse(data)
+        // 创建新课程 - 使用新的 addProCourse 接口
+        // 将前端字段映射为后端接口所需格式
+        const requestData = {
+          coverImage: formData.thumbnailUrl,
+          coverVideo: formData.coverVideo || '',
+          deviceType: formData.type,
+          videoUrl: formData.videoUrl
+        }
+        
+        await addProCourse(requestData)
         ElMessage.success('创建成功')
       }
       

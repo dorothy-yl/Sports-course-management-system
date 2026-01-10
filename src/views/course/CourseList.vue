@@ -117,10 +117,10 @@
           <template #default="{ row }">
             <div class="table-actions">
               <el-button type="primary" size="small" link @click="handlePreview(row)">
-                预览
+                查看
               </el-button>
               <el-button type="primary" size="small" link @click="handleEdit(row)">
-                编辑
+                修改
               </el-button>
               <el-button type="danger" size="small" link @click="handleDelete(row)">
                 删除
