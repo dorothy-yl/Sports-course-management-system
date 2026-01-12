@@ -21,8 +21,9 @@ export const getCourseList = (params) => {
 // 获取课程详情
 export const getCourseDetail = (id) => {
   return request({
-    url: `/courses/${id}`,
-    method: 'get'
+    url: `/system/course/getCourseDetail`,  // 或其他后端提供的接口
+    method: 'get',
+    params: { proCourseId: id }
   })
 }
 

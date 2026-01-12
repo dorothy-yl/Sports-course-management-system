@@ -24,11 +24,9 @@ export const COURSE_TYPE_NAMES = {
   3: '基础',
   4: 'HIIT',
   5: '冲刺',
-  6: '冥想',
-  7: '耐力',
-  8: '高强度',
-  9: '恢复',
-  10: '其他'
+  6: '耐力',
+  7: '高强度',
+  8: '恢复'
 }
 // 性别
 export const GENDER_OPTIONS = [

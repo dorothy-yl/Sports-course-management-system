@@ -30,7 +30,7 @@
               </el-tag>
               <span class="meta-item">
                 <el-icon><Clock /></el-icon>
-                总时长：{{ formatSeconds(courseInfo.duration) }}
+                总时长：{{ courseInfo.duration || '-' }}
               </span>
               <span class="meta-item">
                 <el-icon><List /></el-icon>
@@ -121,42 +121,66 @@ const getCourseTypeTag = (type) => {
 const fetchCourseDetail = async () => {
   loading.value = true
   try {
-    // const res = await getCourseDetail(route.params.id)
-    // Object.assign(courseInfo, res)
+    // 尝试从路由 state 获取数据（从列表页传递过来的）
+    const stateData = history.state.courseData
     
-    // 模拟数据
-    Object.assign(courseInfo, {
-      id: route.params.id,
-      title: '模拟课程 - 入门基础训练',
-      type: 'Treadmill',
-      videoUrl: 'https://oss.bosfits.com/iconsolePro/CourseVideoImage/20260110/ed8d4ecddd8142b3a5557deac2068b60.mp4',
-      thumbnailUrl: 'https://oss.bosfits.com/iconsolePro/CourseVideoImage/20260110/ed8d4ecddd8142b3a5557deac2068b60.mp4',
-      duration: 1200,
-      segments: [
-        {
-          id: 'seg-1',
-          startTime: 0,
-          endTime: 300,
-          speed: 5,
-          incline: 0
-        },
-        {
-          id: 'seg-2',
-          startTime: 300,
-          endTime: 900,
-          speed: 8,
-          incline: 2
-        },
-        {
-          id: 'seg-3',
-          startTime: 900,
-          endTime: 1200,
-          speed: 6,
-          incline: 1
-        }
-      ]
-    })
+    if (stateData) {
+      // 使用从列表页传递过来的真实数据
+      Object.assign(courseInfo, {
+        id: stateData.id,
+        title: stateData.title,
+        type: stateData.type,
+        videoUrl: stateData.videoUrl,  // 真实的视频URL
+        thumbnailUrl: stateData.thumbnailUrl,
+        coverVideo: stateData.coverVideo,
+        duration: stateData.duration,
+        segments: stateData.segments || [],
+        introduction: stateData.introduction,
+        courseAdvice: stateData.courseAdvice,
+        caloriesValue: stateData.caloriesValue
+      })
+    } else {
+      // 如果没有 state 数据，尝试调用 API 或使用模拟数据
+      const res = await getCourseDetail(route.params.id)
+      if (res) {
+        Object.assign(courseInfo, res)
+      } else {
+        // 兜底：使用模拟数据
+        Object.assign(courseInfo, {
+          id: route.params.id,
+          title: '模拟课程 - 入门基础训练',
+          type: 'Treadmill',
+          videoUrl: 'https://oss.bosfits.com/iconsolePro/CourseVideoImage/20260110/ed8d4ecddd8142b3a5557deac2068b60.mp4',
+          thumbnailUrl: 'https://oss.bosfits.com/iconsolePro/CourseVideoImage/20260110/ed8d4ecddd8142b3a5557deac2068b60.mp4',
+          duration: 1200,
+          segments: [
+            {
+              id: 'seg-1',
+              startTime: 0,
+              endTime: 300,
+              speed: 5,
+              incline: 0
+            },
+            {
+              id: 'seg-2',
+              startTime: 300,
+              endTime: 900,
+              speed: 8,
+              incline: 2
+            },
+            {
+              id: 'seg-3',
+              startTime: 900,
+              endTime: 1200,
+              speed: 6,
+              incline: 1
+            }
+          ]
+        })
+      }
+    }
   } catch (error) {
+    console.error('获取课程详情失败:', error)
     ElMessage.error('获取课程详情失败')
   } finally {
     loading.value = false

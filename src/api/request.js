@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import router from '@/router'
 
 // 创建 axios 实例
 const request = axios.create({
@@ -15,6 +16,7 @@ request.interceptors.request.use(
   (config) => {
     // 可以在这里添加 token
     const token = localStorage.getItem('token')
+    console.log(token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -30,6 +32,7 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response) => {
     const { data } = response
+    console.log(data)
     
     // 根据实际后端返回格式调整
     if (data.code === 200 || data.success) {
@@ -48,7 +51,8 @@ request.interceptors.response.use(
       switch (status) {
         case 401:
           ElMessage.error('未授权，请重新登录')
-          // 可以跳转到登录页
+          localStorage.removeItem('token')
+          router.push('/login')
           break
         case 403:
           ElMessage.error('拒绝访问')

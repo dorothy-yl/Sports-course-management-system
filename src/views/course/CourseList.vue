@@ -29,12 +29,15 @@
           <template #prefix>
             <el-icon><Reading /></el-icon>
             </template>
-            <el-option
-              v-for="item in COURSE_TYPE_OPTIONS"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option label="燃脂" :value="0" />
+            <el-option label="健步走" :value="1" />
+            <el-option label="跑走结合" :value="2" />
+             <el-option label="基础 " :value="3" />
+            <el-option label="HIIT" :value="4" />
+            <el-option label="冲刺" :value="5" />
+             <el-option label="耐力" :value="6" />
+            <el-option label="高强度" :value="7" />
+            <el-option label="恢复" :value="8" />
           </el-select>
 
            <el-select
@@ -72,7 +75,7 @@
       >
         <el-table-column type="index" label="序号" width="80"  align="center"/>
         
-        <el-table-column label="视频封面缩略图" width="200" align="center" >
+        <el-table-column label="封面图片" width="150" align="center" >
           <template #default="{ row }">
             <el-image
               v-if="row.thumbnailUrl"
@@ -85,31 +88,30 @@
           </template>
         </el-table-column>
         
+        <el-table-column label="视频封面图片" width="150" align="center" >
+          <template #default="{ row }">
+            <el-image
+              v-if="row.coverVideo"
+              :src="row.coverVideo"
+              fit="cover"
+              style="width: 80px; height: 50px; border-radius: 4px"
+              :preview-src-list="[row.coverVideo]"
+            />
+            <span v-else class="no-image">无图片</span>
+          </template>
+        </el-table-column>
+        
         <el-table-column prop="title" label="课程名称" min-width="180" align="center" show-overflow-tooltip />
         
-        <el-table-column label="课程介绍" width="150" align="center">
+        <el-table-column label="课程介绍" min-width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">
-            <el-tag :type="getCourseTypeTag(row.type)">
-              {{ getCourseTypeName(row.type) }}
-            </el-tag>
+            {{ row.introduction || '-' }}
           </template>
         </el-table-column>
         
-        <el-table-column label="课程总时长" width="150">
+        <el-table-column label="课程时长" width="150" align="center">
           <template #default="{ row }">
-            {{ formatSeconds(row.duration) }}
-          </template>
-        </el-table-column>
-        
-        <el-table-column label="分段数" width="100" align="center">
-          <template #default="{ row }">
-            {{ row.segments?.length || 0 }}
-          </template>
-        </el-table-column>
-        
-        <el-table-column label="创建时间" width="200" align="center">
-          <template #default="{ row }">
-            {{ formatDate(row.createdAt) }}
+            {{ row.duration || '-' }}
           </template>
         </el-table-column>
         
@@ -187,16 +189,21 @@ const getCourseTypeTag = (type) => {
 // 获取课程列表
 const fetchCourseList = async () => {
   loading.value = true
+
   try {
-    const params = {
+ 
+         const params = {
       page: pagination.page,
       pageSize: pagination.pageSize,
-      deviceType: filterDeviceType.value,
-      langCode: filterLangCode.value,
-      type: filterType.value
+      deviceType: 0,
+      langCode: 0,
+      type: 0
     }
+    console.log(params)
+   const res = await getCourseList(params)
+   console.log(res)
+   
     
-    const res = await getCourseList(params)
     
     // 适配后端返回的数据结构
     if (res && res.rows) {
@@ -208,7 +215,7 @@ const fetchCourseList = async () => {
         videoUrl: item.videoUrl1,
         thumbnailUrl: item.coverImage,
         coverVideo: item.coverVideo,
-        duration: item.duration,
+        duration: item.duration,  // 后端返回的是格式化字符串（如 "16分18秒"），直接使用
         segments: [], // 后端可能没有返回 segments，需要单独获取
         createdAt: item.createTime,
         updatedAt: item.createTime,
@@ -217,7 +224,7 @@ const fetchCourseList = async () => {
         taboGroups: item.taboGroups,
         userGroup: item.userGroup,
         caloriesValue: item.caloriesValue,
-        introduction: item.introduction
+        introduction: item.introduce  // 修正：使用 introduce 字段
       }))
       pagination.total = res.total
     } else {
@@ -247,7 +254,11 @@ const handleCreate = () => {
 
 // 预览课程
 const handlePreview = (course) => {
-  router.push(`/courses/preview/${course.id}`)
+  // 通过 state 传递课程数据
+  router.push({
+    path: `/courses/preview/${course.id}`,
+    state: { courseData: course }
+  })
 }
 
 // 编辑课程
