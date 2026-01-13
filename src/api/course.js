@@ -6,9 +6,9 @@ export const getCourseList = (params) => {
   const mappedParams = {
     deviceType: params.deviceType || 0,
     langCode: params.langCode || 0,
-    pageNum: params.page || 1,
+    pageNum: params.pageNum || 1,
     pageSize: params.pageSize || 10,
-    type: params.type || 0
+    type: params.type || null
   }
   
   return request({
@@ -19,11 +19,11 @@ export const getCourseList = (params) => {
 }
 
 // 获取课程详情
-export const getCourseDetail = (id) => {
+export const getCourseDetail = (params) => {
   return request({
-    url: `/system/course/getCourseDetail`,  // 或其他后端提供的接口
+    url: '/system/course/getCourseById',
     method: 'get',
-    params: { proCourseId: id }
+    params: params
   })
 }
 
@@ -73,6 +73,15 @@ export const getCourseHotRanking = () => {
 export const addProCourse = (data) => {
   return request({
     url: '/system/course/addProCourse',
+    method: 'post',
+    data
+  })
+}
+
+// 更新课程
+export const updateSysCourse = (data) => {
+  return request({
+    url: '/system/course/updateSysCourse',
     method: 'post',
     data
   })

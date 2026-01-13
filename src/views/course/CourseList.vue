@@ -54,6 +54,10 @@
              <el-option label="英文" :value="1" />
           </el-select>
         
+          <el-button type="primary" @click="handleSearch"  style="width: 80px">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
         </div>
         
         <div class="toolbar-right">
@@ -135,7 +139,7 @@
       <!-- 分页 -->
       <div class="pagination-container">
         <el-pagination
-          v-model:current-page="pagination.page"
+          v-model:current-page="pagination.pageNum"
           v-model:page-size="pagination.pageSize"
           :total="pagination.total"
           :page-sizes="[10, 20, 50, 100]"
@@ -193,11 +197,11 @@ const fetchCourseList = async () => {
   try {
  
          const params = {
-      page: pagination.page,
+      pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
-      deviceType: 0,
-      langCode: 0,
-      type: 0
+      deviceType: filterDeviceType.value,
+      langCode: filterLangCode.value,
+      type: filterType.value
     }
     console.log(params)
    const res = await getCourseList(params)
@@ -210,21 +214,26 @@ const fetchCourseList = async () => {
       // 映射后端字段到前端字段
       courseList.value = res.rows.map(item => ({
         id: item.proCourseId,
+        detailId: item.detailId || 0,
         title: item.courseName,
         type: item.courseType,
-        videoUrl: item.videoUrl1,
+        deviceType: item.deviceType || 0,
+        videoUrl: item.videoUrl,
         thumbnailUrl: item.coverImage,
         coverVideo: item.coverVideo,
-        duration: item.duration,  // 后端返回的是格式化字符串（如 "16分18秒"），直接使用
-        segments: [], // 后端可能没有返回 segments，需要单独获取
+        duration: item.duration,
+        segments: [],
         createdAt: item.createTime,
         updatedAt: item.createTime,
-        // 保留其他可能用到的字段
+        // 保留编辑页面需要的所有字段
         courseAdvice: item.courseAdvice,
-        taboGroups: item.taboGroups,
+        tabooGroups: item.tabooGroups,
         userGroup: item.userGroup,
         caloriesValue: item.caloriesValue,
-        introduction: item.introduce  // 修正：使用 introduce 字段
+        introduce: item.introduce,
+        langCode: item.langCode || 0,
+        trainingObjectives: item.trainingObjectives || '',
+        trainingTime: item.trainingTime || item.duration || ''
       }))
       pagination.total = res.total
     } else {
@@ -243,7 +252,8 @@ const fetchCourseList = async () => {
 
 // 搜索
 const handleSearch = () => {
-  pagination.page = 1
+ 
+  
   fetchCourseList()
 }
 
@@ -254,16 +264,26 @@ const handleCreate = () => {
 
 // 预览课程
 const handlePreview = (course) => {
-  // 通过 state 传递课程数据
-  router.push({
-    path: `/courses/preview/${course.id}`,
-    state: { courseData: course }
-  })
+  console.log(course)
+     const params = {
+      
+    id:course.id,
+      deviceType: filterDeviceType.value,
+      langCode: filterLangCode.value,
+      
+    }
+   
+  // 只传递课程ID，数据由详情页通过API获取
+  router.push({path: '/courses/preview/params.id',query:params})
 }
 
 // 编辑课程
 const handleEdit = (course) => {
-  router.push(`/courses/edit/${course.id}`)
+  // 通过 state 传递完整的课程数据到编辑页面
+  router.push({
+    path: `/courses/edit/${course.id}`,
+    state: { courseData: course }
+  })
 }
 
 // 删除课程

@@ -36,7 +36,7 @@ request.interceptors.response.use(
     
     // 根据实际后端返回格式调整
     if (data.code === 200 || data.success) {
-      return data.data || data
+      return  data
     }
     
     ElMessage.error(data.message || '请求失败')

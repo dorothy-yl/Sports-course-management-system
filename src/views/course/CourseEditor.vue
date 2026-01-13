@@ -13,27 +13,19 @@
         <!-- 基础信息 -->
         <el-divider content-position="left">基础信息</el-divider>
         
-        <el-form-item label="封面图片URL" prop="thumbnailUrl">
+        <el-form-item label="课程名称" prop="courseName">
           <el-input
-            v-model="formData.thumbnailUrl"
-            placeholder="请输入URL"
+            v-model="formData.courseName"
+            placeholder="请输入课程名称"
             maxlength="100"
             show-word-limit
           />
         </el-form-item>
         
-         <el-form-item label="封面视频URL" prop="coverVideo">
-          <el-input
-            v-model="formData.coverVideo"
-            placeholder="请输入URL"
-            maxlength="100"
-            show-word-limit
-          />
-        </el-form-item>
-         <el-form-item label="设备类型" prop="type">
+        <el-form-item label="设备类型" prop="deviceType">
           <el-select
-            v-model="formData.type"
-            placeholder="请选择类型"
+            v-model="formData.deviceType"
+            placeholder="请选择设备类型"
             style="width: 100%"
             @change="handleTypeChange"
           >
@@ -45,11 +37,102 @@
             />
           </el-select>
         </el-form-item>
+        
+        <el-form-item label="课程类型" prop="courseType">
+          <el-select
+            v-model="formData.courseType"
+            placeholder="请选择课程类型"
+            style="width: 100%"
+          >
+            <el-option label="燃脂" :value="0" />
+            <el-option label="健步走" :value="1" />
+            <el-option label="跑走结合" :value="2" />
+            <el-option label="基础" :value="3" />
+            <el-option label="HIIT" :value="4" />
+            <el-option label="冲刺" :value="5" />
+            <el-option label="耐力" :value="6" />
+            <el-option label="高强度" :value="7" />
+            <el-option label="恢复" :value="8" />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="语言编码" prop="langCode">
+          <el-select
+            v-model="formData.langCode"
+            placeholder="请选择语言编码"
+            style="width: 100%"
+          >
+            <el-option label="中文" :value="0" />
+            <el-option label="英文" :value="1" />
+          </el-select>
+        </el-form-item>
+        
+        <el-divider content-position="left">媒体资源</el-divider>
+        
+        <el-form-item label="封面图片URL" prop="coverImage">
+          <el-input
+            v-model="formData.coverImage"
+            placeholder="请输入封面图片URL"
+            maxlength="200"
+            show-word-limit
+          />
+        </el-form-item>
+        
+        <el-form-item label="封面视频URL" prop="coverVideo">
+          <el-input
+            v-model="formData.coverVideo"
+            placeholder="请输入封面视频URL"
+            maxlength="200"
+            show-word-limit
+          />
+        </el-form-item>
 
-          <el-form-item label="课程视频URL" prop="videoUrl">
+        <el-form-item label="课程视频URL" prop="videoUrl">
           <el-input
             v-model="formData.videoUrl"
-            placeholder="请输入URL"
+            placeholder="请输入课程视频URL"
+            maxlength="200"
+            show-word-limit
+          />
+        </el-form-item>
+        
+        <el-divider content-position="left">课程详情</el-divider>
+        
+        <el-form-item label="课程介绍" prop="introduce">
+          <el-input
+            v-model="formData.introduce"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入课程介绍"
+            maxlength="500"
+            show-word-limit
+          />
+        </el-form-item>
+        
+        <el-form-item label="训练目标" prop="trainingObjectives">
+          <el-input
+            v-model="formData.trainingObjectives"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入训练目标"
+            maxlength="500"
+            show-word-limit
+          />
+        </el-form-item>
+        
+        <el-form-item label="训练时间" prop="trainingTime">
+          <el-input
+            v-model="formData.trainingTime"
+            placeholder="例如：30分钟"
+            maxlength="50"
+            show-word-limit
+          />
+        </el-form-item>
+        
+        <el-form-item label="适用人群" prop="userGroup">
+          <el-input
+            v-model="formData.userGroup"
+            placeholder="请输入适用人群"
             maxlength="100"
             show-word-limit
           />
@@ -72,7 +155,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getCourseDetail, createCourse, updateCourse, addProCourse } from '@/api/course'
+import { getCourseDetail, createCourse, updateCourse, addProCourse, updateSysCourse } from '@/api/course'
 import { COURSE_TYPE_OPTIONS } from '@/constants'
 import { required } from '@/utils/validate'
 import SegmentEditor from '@/components/course/SegmentEditor.vue'
@@ -88,34 +171,37 @@ const submitting = ref(false)
 const isEdit = computed(() => !!route.params.id)
 
 const formData = reactive({
-  title: '',
-  type: '',
-  videoUrl: '',
-  thumbnailUrl: '',
+  proCourseId: null,
+  detailId: null,
+  courseName: '',
+  courseType: '',
+  deviceType: '',
+  coverImage: '',
   coverVideo: '',
+  videoUrl: '',
+  introduce: '',
+  langCode: 0,
+  trainingObjectives: '',
+  trainingTime: '',
+  userGroup: '',
   segments: []
 })
 
 const rules = {
-  thumbnailUrl: [required('请输入封面图片URL')], // 对应封面图片
-  coverVideo: [required('请输入封面视频URL')], // 对应封面视频
-  videoUrl: [required('请输入课程视频URL')],     // 对应主视频
-  type: [required('请选择设备类型')],
-  segments: [
-    {
-      validator: (rule, value, callback) => {
-        if (!value || value.length === 0) {
-          callback(new Error('请至少添加一个分段'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'change'
-    }
-  ]
+  courseName: [required('请输入课程名称')],
+  courseType: [required('请选择课程类型')],
+  deviceType: [required('请选择设备类型')],
+  coverImage: [required('请输入封面图片URL')],
+  coverVideo: [required('请输入封面视频URL')],
+  videoUrl: [required('请输入课程视频URL')],
+  introduce: [required('请输入课程介绍')],
+  langCode: [required('请选择语言编码')],
+  trainingObjectives: [required('请输入训练目标')],
+  trainingTime: [required('请输入训练时间')],
+  userGroup: [required('请输入适用人群')]
 }
 
-// 课程类型改变时，清空分段数据
+// 设备类型改变时，清空分段数据
 const handleTypeChange = () => {
   formData.segments = []
 }
@@ -123,43 +209,51 @@ const handleTypeChange = () => {
 // 获取课程详情
 const fetchCourseDetail = async () => {
   try {
-    // const res = await getCourseDetail(route.params.id)
-    // Object.assign(formData, res)
+    // 尝试从路由 state 获取数据（从列表页传递过来的）
+    const stateData = history.state.courseData
     
-    // 模拟数据
-    const mockCourse = {
-      id: route.params.id,
-      title: '模拟课程 - 入门基础训练',
-      type: 'Treadmill',
-      videoUrl: 'https://example.com/video/1.mp4',
-      thumbnailUrl: 'https://picsum.photos/400/240?random=1',
-      segments: [
-        {
-          id: 'seg-1',
-          startTime: 0,
-          endTime: 300,
-          speed: 5,
-          incline: 0
-        },
-        {
-          id: 'seg-2',
-          startTime: 300,
-          endTime: 900,
-          speed: 8,
-          incline: 2
-        },
-        {
-          id: 'seg-3',
-          startTime: 900,
-          endTime: 1200,
-          speed: 6,
-          incline: 1
-        }
-      ]
+    if (stateData) {
+      // 映射列表页的数据到表单字段
+      Object.assign(formData, {
+        proCourseId: stateData.id,
+        detailId: stateData.detailId || 0,
+        courseName: stateData.title || '',
+        courseType: stateData.type || '',
+        deviceType: stateData.deviceType || '',
+        coverImage: stateData.thumbnailUrl || '',
+        coverVideo: stateData.coverVideo || '',
+        videoUrl: stateData.videoUrl || '',
+        introduce: stateData.introduction || '',
+        langCode: stateData.langCode || 0,
+        trainingObjectives: stateData.trainingObjectives || '',
+        trainingTime: stateData.trainingTime || stateData.duration || '',
+        userGroup: stateData.userGroup || '',
+        segments: stateData.segments || []
+      })
+    } else {
+      // 如果没有 state 数据，尝试调用 API
+      const res = await getCourseDetail(route.params.id)
+      if (res) {
+        Object.assign(formData, {
+          proCourseId: res.proCourseId,
+          detailId: res.detailId || 0,
+          courseName: res.courseName || '',
+          courseType: res.courseType || '',
+          deviceType: res.deviceType || '',
+          coverImage: res.coverImage || '',
+          coverVideo: res.coverVideo || '',
+          videoUrl: res.videoUrl || '',
+          introduce: res.introduce || '',
+          langCode: res.langCode || 0,
+          trainingObjectives: res.trainingObjectives || '',
+          trainingTime: res.trainingTime || res.duration || '',
+          userGroup: res.userGroup || '',
+          segments: res.segments || []
+        })
+      }
     }
-    
-    Object.assign(formData, mockCourse)
   } catch (error) {
+    console.error('获取课程详情失败:', error)
     ElMessage.error('获取课程详情失败')
   }
 }
@@ -174,24 +268,39 @@ const handleSubmit = async () => {
     submitting.value = true
     try {
       if (isEdit.value) {
-        // 计算总时长
-        const duration = Math.max(...formData.segments.map(s => s.endTime))
-        
-        const data = {
-          ...formData,
-          duration
+        // 更新课程 - 使用新的 updateSysCourse 接口
+        const requestData = {
+          proCourseId: formData.proCourseId,
+          detailId: formData.detailId || 0,
+          courseName: formData.courseName,
+          courseType: formData.courseType,
+          deviceType: formData.deviceType,
+          coverImage: formData.coverImage,
+          coverVideo: formData.coverVideo,
+          videoUrl: formData.videoUrl,
+          introduce: formData.introduce,
+          langCode: formData.langCode,
+          trainingObjectives: formData.trainingObjectives,
+          trainingTime: formData.trainingTime,
+          userGroup: formData.userGroup
         }
         
-        // await updateCourse(route.params.id, data)
+        await updateSysCourse(requestData)
         ElMessage.success('更新成功')
       } else {
-        // 创建新课程 - 使用新的 addProCourse 接口
-        // 将前端字段映射为后端接口所需格式
+        // 创建新课程 - 使用 addProCourse 接口
         const requestData = {
-          coverImage: formData.thumbnailUrl,
-          coverVideo: formData.coverVideo || '',
-          deviceType: formData.type,
-          videoUrl: formData.videoUrl
+          courseName: formData.courseName,
+          courseType: formData.courseType,
+          deviceType: formData.deviceType,
+          coverImage: formData.coverImage,
+          coverVideo: formData.coverVideo,
+          videoUrl: formData.videoUrl,
+          introduce: formData.introduce,
+          langCode: formData.langCode,
+          trainingObjectives: formData.trainingObjectives,
+          trainingTime: formData.trainingTime,
+          userGroup: formData.userGroup
         }
         
         await addProCourse(requestData)
@@ -200,6 +309,7 @@ const handleSubmit = async () => {
       
       router.push('/courses')
     } catch (error) {
+      console.error('提交失败:', error)
       ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
     } finally {
       submitting.value = false
