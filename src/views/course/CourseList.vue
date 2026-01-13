@@ -109,7 +109,7 @@
         
         <el-table-column label="课程介绍" min-width="200" align="center" show-overflow-tooltip>
           <template #default="{ row }">
-            {{ row.introduction || '-' }}
+            {{ row.introduce || '-' }}
           </template>
         </el-table-column>
         
@@ -165,9 +165,9 @@ const router = useRouter()
 const loading = ref(false)
 const courseList = ref([])
 const searchKeyword = ref('')
-const filterType = ref('')
-const filterDeviceType = ref('')
-const filterLangCode = ref('')
+const filterType = ref(0)
+const filterDeviceType = ref(0)
+const filterLangCode = ref(0)
 
 const pagination = reactive({
   page: 1,
@@ -226,14 +226,35 @@ const fetchCourseList = async () => {
         createdAt: item.createTime,
         updatedAt: item.createTime,
         // 保留编辑页面需要的所有字段
-        courseAdvice: item.courseAdvice,
-        tabooGroups: item.tabooGroups,
-        userGroup: item.userGroup,
-        caloriesValue: item.caloriesValue,
         introduce: item.introduce,
         langCode: item.langCode || 0,
         trainingObjectives: item.trainingObjectives || '',
-        trainingTime: item.trainingTime || item.duration || ''
+        trainingTime: item.trainingTime || item.duration || '',
+        userGroup: item.userGroup,
+        // 课程描述相关字段
+        theSubtitle: item.theSubtitle || '',
+        caloriesValue: item.caloriesValue || '',
+        briefFeatures: item.briefFeatures || '',
+        courseFeatures: item.courseFeatures || '',
+        // 训练信息相关字段
+        trainingFrequency: item.trainingFrequency || '',
+        bodyReaction: item.bodyReaction || '',
+        trainingPrinciples: item.trainingPrinciples || '',
+        trainingMethods: item.trainingMethods || '',
+        trainingProcess: item.trainingProcess || '',
+        trainingEffect: item.trainingEffect || '',
+        // 适用人群相关字段
+        tabooGroups: item.tabooGroups || '',
+        // 器材与部位相关字段
+        exerciseSite: item.exerciseSite || '',
+        requiredEquipment: item.requiredEquipment || '',
+        recommendedEquipment: item.recommendedEquipment || '',
+        // 建议与反馈相关字段
+        courseAdvice: item.courseAdvice || '',
+        safetyTips: item.safetyTips || '',
+        seriesFeatures: item.seriesFeatures || '',
+        courseFeedback: item.courseFeedback || '',
+        specialRemarks: item.specialRemarks || ''
       }))
       pagination.total = res.total
     } else {
@@ -279,9 +300,13 @@ const handlePreview = (course) => {
 
 // 编辑课程
 const handleEdit = (course) => {
-  // 通过 state 传递完整的课程数据到编辑页面
+  // 通过 state 传递完整的课程数据到编辑页面，同时传递 query 参数
   router.push({
     path: `/courses/edit/${course.id}`,
+    query: {
+      deviceType: filterDeviceType.value,
+      langCode: filterLangCode.value
+    },
     state: { courseData: course }
   })
 }

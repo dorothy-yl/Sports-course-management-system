@@ -231,11 +231,10 @@ const fetchCourseDetail = async () => {
   
   loading.value = true
   try {
-         var params = {
-      
+    var params = {
     courseId:parseInt(route.query.id),
-      deviceType: route.query.deviceType,
-      langCode: route.query.langCode,
+    deviceType: route.query.deviceType,
+    langCode: route.query.langCode,
       
     }
      console.log('参数：'+JSON.stringify (params))
