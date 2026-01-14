@@ -10,344 +10,393 @@
         label-width="120px"
         label-position="right"
       >
-        <!-- 基础信息 -->
-        <el-divider content-position="left">基础信息</el-divider>
-        
-        <el-form-item label="课程名称" prop="courseName">
-          <el-input
-            v-model="formData.courseName"
-            placeholder="请输入课程名称"
-            maxlength="100"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="设备类型" prop="deviceType">
-          <el-select
-            v-model="formData.deviceType"
-            placeholder="请选择设备类型"
-            style="width: 100%"
-            @change="handleTypeChange"
-          >
-            <el-option
-              v-for="item in COURSE_TYPE_OPTIONS"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+        <!-- 新增模式：只显示4个必填字段 -->
+        <template v-if="!isEdit">
+          <el-divider content-position="left">基础信息</el-divider>
+          
+          <el-form-item label="设备类型" prop="deviceType">
+            <el-select
+              v-model="formData.deviceType"
+              placeholder="请选择设备类型"
+              style="width: 100%"
+            >
+              <el-option label="跑步机" :value="0" />
+              <el-option label="脚踏车" :value="1" />
+              <el-option label="划船机" :value="2" />
+            </el-select>
+          </el-form-item>
+          
+          <el-divider content-position="left">媒体资源</el-divider>
+          
+          <el-form-item label="封面图片URL" prop="coverImage">
+            <el-input
+              v-model="formData.coverImage"
+              placeholder="请输入封面图片URL"
+              maxlength="200"
+              show-word-limit
             />
-          </el-select>
-        </el-form-item>
-        
-        <el-form-item label="课程类型" prop="courseType">
-          <el-select
-            v-model="formData.courseType"
-            placeholder="请选择课程类型"
-            style="width: 100%"
-          >
-            <el-option label="燃脂" :value="0" />
-            <el-option label="健步走" :value="1" />
-            <el-option label="跑走结合" :value="2" />
-            <el-option label="基础" :value="3" />
-            <el-option label="HIIT" :value="4" />
-            <el-option label="冲刺" :value="5" />
-            <el-option label="耐力" :value="6" />
-            <el-option label="高强度" :value="7" />
-            <el-option label="恢复" :value="8" />
-          </el-select>
-        </el-form-item>
-        
-        <el-form-item label="语言编码" prop="langCode">
-          <el-select
-            v-model="formData.langCode"
-            placeholder="请选择语言编码"
-            style="width: 100%"
-          >
-            <el-option label="中文" :value="0" />
-            <el-option label="英文" :value="1" />
-          </el-select>
-        </el-form-item>
-        
-        <el-divider content-position="left">媒体资源</el-divider>
-        
-        <el-form-item label="封面图片URL" prop="coverImage">
-          <el-input
-            v-model="formData.coverImage"
-            placeholder="请输入封面图片URL"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="封面视频URL" prop="coverVideo">
-          <el-input
-            v-model="formData.coverVideo"
-            placeholder="请输入封面视频URL"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
+          </el-form-item>
+          
+          <el-form-item label="封面视频URL" prop="coverVideo">
+            <el-input
+              v-model="formData.coverVideo"
+              placeholder="请输入封面视频URL"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
 
-        <el-form-item label="课程视频URL" prop="videoUrl">
-          <el-input
-            v-model="formData.videoUrl"
-            placeholder="请输入课程视频URL"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
+          <el-form-item label="课程视频URL" prop="videoUrl">
+            <el-input
+              v-model="formData.videoUrl"
+              placeholder="请输入课程视频URL"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+        </template>
         
-        <el-divider content-position="left">课程描述</el-divider>
-        
-        <el-form-item label="副标题">
-          <el-input
-            v-model="formData.theSubtitle"
-            placeholder="请输入副标题"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="热量值">
-          <el-input
-            v-model="formData.caloriesValue"
-            placeholder="请输入热量值"
-            maxlength="50"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="课程介绍" prop="introduce">
-          <el-input
-            v-model="formData.introduce"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入课程介绍"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="简要特点">
-          <el-input
-            v-model="formData.briefFeatures"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入简要特点"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="课程特色">
-          <el-input
-            v-model="formData.courseFeatures"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入课程特色"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-divider content-position="left">训练信息</el-divider>
-        
-        <el-form-item label="训练时间" prop="trainingTime">
-          <el-input
-            v-model="formData.trainingTime"
-            placeholder="例如：30分钟"
-            maxlength="50"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="训练频率">
-          <el-input
-            v-model="formData.trainingFrequency"
-            placeholder="请输入训练频率"
-            maxlength="100"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="身体反应">
-          <el-input
-            v-model="formData.bodyReaction"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入身体反应"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="训练目标" prop="trainingObjectives">
-          <el-input
-            v-model="formData.trainingObjectives"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入训练目标"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="训练原则">
-          <el-input
-            v-model="formData.trainingPrinciples"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入训练原则"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="训练方法">
-          <el-input
-            v-model="formData.trainingMethods"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入训练方法"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="训练过程">
-          <el-input
-            v-model="formData.trainingProcess"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入训练过程"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="培训效果">
-          <el-input
-            v-model="formData.trainingEffect"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入培训效果"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-divider content-position="left">适用人群</el-divider>
-        
-        <el-form-item label="适用人群" prop="userGroup">
-          <el-input
-            v-model="formData.userGroup"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入适用人群"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="禁忌人群">
-          <el-input
-            v-model="formData.tabooGroups"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入禁忌人群"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-divider content-position="left">器材与锻炼部位</el-divider>
-        
-        <el-form-item label="锻炼部位">
-          <el-input
-            v-model="formData.exerciseSite"
-            placeholder="请输入锻炼部位"
-            maxlength="100"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="必需器材">
-          <el-input
-            v-model="formData.requiredEquipment"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入必需器材"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="推荐器材">
-          <el-input
-            v-model="formData.recommendedEquipment"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入推荐器材"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-divider content-position="left">建议与反馈</el-divider>
-        
-        <el-form-item label="课程建议">
-          <el-input
-            v-model="formData.courseAdvice"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入课程建议"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="安全提示">
-          <el-input
-            v-model="formData.safetyTips"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入安全提示"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="系列特点">
-          <el-input
-            v-model="formData.seriesFeatures"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入系列特点"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="课程反馈">
-          <el-input
-            v-model="formData.courseFeedback"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入课程反馈"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
-        
-        <el-form-item label="特别备注">
-          <el-input
-            v-model="formData.specialRemarks"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入特别备注"
-            maxlength="500"
-            show-word-limit
-          />
-        </el-form-item>
+        <!-- 编辑模式：显示所有字段 -->
+        <template v-else>
+          <!-- 基础信息 -->
+          <el-divider content-position="left">基础信息</el-divider>
+          
+          <el-form-item label="课程名称" prop="courseName">
+            <el-input
+              v-model="formData.courseName"
+              placeholder="请输入课程名称"
+              maxlength="100"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="设备类型" prop="deviceType">
+            <el-select
+              v-model="formData.deviceType"
+              placeholder="请选择设备类型"
+              style="width: 100%"
+              @change="handleTypeChange"
+            >
+              <el-option
+                v-for="item in COURSE_TYPE_OPTIONS"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          
+          <el-form-item label="课程类型" prop="courseType">
+            <el-select
+              v-model="formData.courseType"
+              placeholder="请选择课程类型"
+              style="width: 100%"
+            >
+              <el-option label="燃脂" :value="0" />
+              <el-option label="健步走" :value="1" />
+              <el-option label="跑走结合" :value="2" />
+              <el-option label="基础" :value="3" />
+              <el-option label="HIIT" :value="4" />
+              <el-option label="冲刺" :value="5" />
+              <el-option label="耐力" :value="6" />
+              <el-option label="高强度" :value="7" />
+              <el-option label="恢复" :value="8" />
+            </el-select>
+          </el-form-item>
+          
+          <el-form-item label="语言编码" prop="langCode">
+            <el-select
+              v-model="formData.langCode"
+              placeholder="请选择语言编码"
+              style="width: 100%"
+            >
+              <el-option label="中文" :value="0" />
+              <el-option label="英文" :value="1" />
+            </el-select>
+          </el-form-item>
+          
+          <el-divider content-position="left">媒体资源</el-divider>
+          
+          <el-form-item label="封面图片URL" prop="coverImage">
+            <el-input
+              v-model="formData.coverImage"
+              placeholder="请输入封面图片URL"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="封面视频URL" prop="coverVideo">
+            <el-input
+              v-model="formData.coverVideo"
+              placeholder="请输入封面视频URL"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+
+          <el-form-item label="课程视频URL" prop="videoUrl">
+            <el-input
+              v-model="formData.videoUrl"
+              placeholder="请输入课程视频URL"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-divider content-position="left">课程描述</el-divider>
+          
+          <el-form-item label="副标题">
+            <el-input
+              v-model="formData.theSubtitle"
+              placeholder="请输入副标题"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="热量值">
+            <el-input
+              v-model="formData.caloriesValue"
+              placeholder="请输入热量值"
+              maxlength="50"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="课程介绍" prop="introduce">
+            <el-input
+              v-model="formData.introduce"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入课程介绍"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="简要特点">
+            <el-input
+              v-model="formData.briefFeatures"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入简要特点"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="课程特色">
+            <el-input
+              v-model="formData.courseFeatures"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入课程特色"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-divider content-position="left">训练信息</el-divider>
+          
+          <el-form-item label="训练时间" prop="trainingTime">
+            <el-input
+              v-model="formData.trainingTime"
+              placeholder="例如：30分钟"
+              maxlength="50"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="训练频率">
+            <el-input
+              v-model="formData.trainingFrequency"
+              placeholder="请输入训练频率"
+              maxlength="100"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="身体反应">
+            <el-input
+              v-model="formData.bodyReaction"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入身体反应"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="训练目标" prop="trainingObjectives">
+            <el-input
+              v-model="formData.trainingObjectives"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入训练目标"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="训练原则">
+            <el-input
+              v-model="formData.trainingPrinciples"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入训练原则"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="训练方法">
+            <el-input
+              v-model="formData.trainingMethods"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入训练方法"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="训练过程">
+            <el-input
+              v-model="formData.trainingProcess"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入训练过程"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="培训效果">
+            <el-input
+              v-model="formData.trainingEffect"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入培训效果"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-divider content-position="left">适用人群</el-divider>
+          
+          <el-form-item label="适用人群" prop="userGroup">
+            <el-input
+              v-model="formData.userGroup"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入适用人群"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="禁忌人群">
+            <el-input
+              v-model="formData.tabooGroups"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入禁忌人群"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-divider content-position="left">器材与锻炼部位</el-divider>
+          
+          <el-form-item label="锻炼部位">
+            <el-input
+              v-model="formData.exerciseSite"
+              placeholder="请输入锻炼部位"
+              maxlength="100"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="必需器材">
+            <el-input
+              v-model="formData.requiredEquipment"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入必需器材"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="推荐器材">
+            <el-input
+              v-model="formData.recommendedEquipment"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入推荐器材"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-divider content-position="left">建议与反馈</el-divider>
+          
+          <el-form-item label="课程建议">
+            <el-input
+              v-model="formData.courseAdvice"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入课程建议"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="安全提示">
+            <el-input
+              v-model="formData.safetyTips"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入安全提示"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="系列特点">
+            <el-input
+              v-model="formData.seriesFeatures"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入系列特点"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="课程反馈">
+            <el-input
+              v-model="formData.courseFeedback"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入课程反馈"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+          
+          <el-form-item label="特别备注">
+            <el-input
+              v-model="formData.specialRemarks"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入特别备注"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+        </template>
         
         <!-- 操作按钮 -->
         <el-form-item>
@@ -422,19 +471,33 @@ const formData = reactive({
   specialRemarks: ''
 })
 
-const rules = {
-  courseName: [required('请输入课程名称')],
-  courseType: [required('请选择课程类型')],
-  deviceType: [required('请选择设备类型')],
-  coverImage: [required('请输入封面图片URL')],
-  coverVideo: [required('请输入封面视频URL')],
-  videoUrl: [required('请输入课程视频URL')],
-  introduce: [required('请输入课程介绍')],
-  langCode: [required('请选择语言编码')],
-  trainingObjectives: [required('请输入训练目标')],
-  trainingTime: [required('请输入训练时间')],
-  userGroup: [required('请输入适用人群')]
-}
+// 动态验证规则：新增模式只验证4个必填字段，编辑模式验证全部字段
+const rules = computed(() => {
+  if (isEdit.value) {
+    // 编辑模式：所有必填字段
+    return {
+      courseName: [required('请输入课程名称')],
+      courseType: [required('请选择课程类型')],
+      deviceType: [required('请选择设备类型')],
+      coverImage: [required('请输入封面图片URL')],
+      coverVideo: [required('请输入封面视频URL')],
+      videoUrl: [required('请输入课程视频URL')],
+      introduce: [required('请输入课程介绍')],
+      langCode: [required('请选择语言编码')],
+      trainingObjectives: [required('请输入训练目标')],
+      trainingTime: [required('请输入训练时间')],
+      userGroup: [required('请输入适用人群')]
+    }
+  } else {
+    // 新增模式：只验证4个字段
+    return {
+      deviceType: [required('请选择设备类型')],
+      coverImage: [required('请输入封面图片URL')],
+      coverVideo: [required('请输入封面视频URL')],
+      videoUrl: [required('请输入课程视频URL')]
+    }
+  }
+})
 
 // 设备类型改变时，清空分段数据
 const handleTypeChange = () => {
@@ -614,43 +677,12 @@ const handleSubmit = async () => {
         await updateSysCourse(requestData)
         ElMessage.success('更新成功')
       } else {
-        // 创建新课程 - 使用 addProCourse 接口
+        // 创建新课程 - 使用 addProCourse 接口，只提交4个必填字段
         const requestData = {
-          courseName: formData.courseName,
-          courseType: formData.courseType,
           deviceType: formData.deviceType,
           coverImage: formData.coverImage,
           coverVideo: formData.coverVideo,
-          videoUrl: formData.videoUrl,
-          introduce: formData.introduce,
-          langCode: formData.langCode,
-          trainingObjectives: formData.trainingObjectives,
-          trainingTime: formData.trainingTime,
-          userGroup: formData.userGroup,
-          // 课程描述相关字段
-          theSubtitle: formData.theSubtitle,
-          caloriesValue: formData.caloriesValue,
-          briefFeatures: formData.briefFeatures,
-          courseFeatures: formData.courseFeatures,
-          // 训练信息相关字段
-          trainingFrequency: formData.trainingFrequency,
-          bodyReaction: formData.bodyReaction,
-          trainingPrinciples: formData.trainingPrinciples,
-          trainingMethods: formData.trainingMethods,
-          trainingProcess: formData.trainingProcess,
-          trainingEffect: formData.trainingEffect,
-          // 适用人群相关字段
-          tabooGroups: formData.tabooGroups,
-          // 器材与部位相关字段
-          exerciseSite: formData.exerciseSite,
-          requiredEquipment: formData.requiredEquipment,
-          recommendedEquipment: formData.recommendedEquipment,
-          // 建议与反馈相关字段
-          courseAdvice: formData.courseAdvice,
-          safetyTips: formData.safetyTips,
-          seriesFeatures: formData.seriesFeatures,
-          courseFeedback: formData.courseFeedback,
-          specialRemarks: formData.specialRemarks
+          videoUrl: formData.videoUrl
         }
         
         await addProCourse(requestData)

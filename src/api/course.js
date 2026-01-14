@@ -46,10 +46,11 @@ export const updateCourse = (id, data) => {
 }
 
 // 删除课程
-export const deleteCourse = (id) => {
+export const deleteCourse = (params) => {
   return request({
-    url: `/courses/${id}`,
-    method: 'delete'
+    url: `/system/course/deleteCourseById`,
+    method: 'get',
+    params
   })
 }
 
@@ -82,6 +83,24 @@ export const addProCourse = (data) => {
 export const updateSysCourse = (data) => {
   return request({
     url: '/system/course/updateSysCourse',
+    method: 'post',
+    data
+  })
+}
+
+// 根据课程id查询提示内容
+export const getProCourseTips = (courseId) => {
+  return request({
+    url: '/system/course/getProCourseTips',
+    method: 'get',
+    params: { courseId }
+  })
+}
+
+// 新增课程提示内容
+export const addCourseTip = (data) => {
+  return request({
+    url: '/system/course/addCourseTip',
     method: 'post',
     data
   })

@@ -63,7 +63,7 @@
         <div class="toolbar-right">
           <el-button type="primary" @click="handleCreate">
             <el-icon><Plus /></el-icon>
-            新建课程
+            新增课程
           </el-button>
         </div>
       </div>
@@ -131,6 +131,9 @@
               <el-button type="danger" size="small" link @click="handleDelete(row)">
                 删除
               </el-button>
+              <el-button type="" size="small" link @click="handleTips(row)">
+                提示
+              </el-button>
             </div>
           </template>
         </el-table-column>
@@ -153,14 +156,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getCourseList, deleteCourse } from '@/api/course'
 import { formatDate, formatSeconds, getCourseTypeName } from '@/utils/format'
 import { COURSE_TYPE_OPTIONS } from '@/constants'
 
 const router = useRouter()
+const route = useRoute()
 
 const loading = ref(false)
 const courseList = ref([])
@@ -170,7 +174,7 @@ const filterDeviceType = ref(0)
 const filterLangCode = ref(0)
 
 const pagination = reactive({
-  page: 1,
+  pageNum: 1,
   pageSize: 10,
   total: 0
 })
@@ -203,6 +207,7 @@ const fetchCourseList = async () => {
       langCode: filterLangCode.value,
       type: filterType.value
     }
+     console.log('请求课程列表的参数：', params)
     console.log(params)
    const res = await getCourseList(params)
    console.log(res)
@@ -273,15 +278,14 @@ const fetchCourseList = async () => {
 
 // 搜索
 const handleSearch = () => {
- 
-  
   fetchCourseList()
 }
 
-// 新建课程
+// 新增课程
 const handleCreate = () => {
   router.push('/courses/create')
 }
+
 
 // 预览课程
 const handlePreview = (course) => {
@@ -295,7 +299,10 @@ const handlePreview = (course) => {
     }
    
   // 只传递课程ID，数据由详情页通过API获取
-  router.push({path: '/courses/preview/params.id',query:params})
+  router.push({
+    path: '/courses/preview/params.id',
+    query:params
+    })
 }
 
 // 编辑课程
@@ -313,6 +320,9 @@ const handleEdit = (course) => {
 
 // 删除课程
 const handleDelete = (course) => {
+  // 新增：打印要删除的课程ID，确认是否有值
+  console.log('当前要删除的课程ID：', course.id); 
+
   ElMessageBox.confirm(
     `确定要删除课程"${course.title}"吗？`,
     '警告',
@@ -323,16 +333,40 @@ const handleDelete = (course) => {
     }
   ).then(async () => {
     try {
-      // await deleteCourse(course.id)
+      // 传递对象格式的参数给后端
+await deleteCourse({ courseId: course.id })
       ElMessage.success('删除成功')
+      // 删除后重置页码为第1页，避免分页数据残留
+      pagination.pageNum = 1; 
       fetchCourseList()
     } catch (error) {
-      ElMessage.error('删除失败')
+      console.error('删除课程失败 详细错误:', error); // 新增：打印完整错误
+      ElMessage.error(`删除失败：${error.message || '接口调用异常'}`)
     }
   }).catch(() => {
     // 取消删除
   })
 }
+
+// 查看课程提示
+const handleTips = (course) => {
+  router.push({
+    path: `/courses/tips/${course.id}`
+  })
+}
+
+// 监听路由变化，当从新增/编辑页面返回时自动刷新列表
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    // 当路由切换到课程列表页时，如果之前不在列表页，则刷新列表
+    if (newPath === '/courses' && oldPath && oldPath !== '/courses') {
+      // 重置页码到第一页，确保能看到新添加的课程
+      pagination.pageNum = 1
+      fetchCourseList()
+    }
+  }
+)
 
 onMounted(() => {
   fetchCourseList()

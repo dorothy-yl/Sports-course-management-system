@@ -348,6 +348,7 @@ const handleVideoError = (event) => {
   ElMessage.error('视频加载失败，请检查视频地址是否有效')
 }
 
+
 onMounted(() => {
   fetchCourseDetail()
 })

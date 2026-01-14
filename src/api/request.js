@@ -46,7 +46,13 @@ request.interceptors.response.use(
     console.error('响应错误:', error)
     
     if (error.response) {
-      const { status } = error.response
+      const { status, data } = error.response
+      
+      // 提取错误信息
+      let errorMessage = '请求失败'
+      if (data) {
+        errorMessage = data.msg || data.message || data.error || errorMessage
+      }
       
       switch (status) {
         case 401:
@@ -61,11 +67,16 @@ request.interceptors.response.use(
           ElMessage.error('请求资源不存在')
           break
         case 500:
-          ElMessage.error('服务器错误')
+          // 500 错误时显示后端返回的具体错误信息
+          ElMessage.error(errorMessage || '服务器错误')
           break
         default:
-          ElMessage.error(error.response.data?.message || '请求失败')
+          ElMessage.error(errorMessage)
       }
+      
+      // 将错误信息附加到 error 对象上，方便调用方获取
+      error.message = errorMessage
+      error.serverMessage = errorMessage
     } else {
       ElMessage.error('网络错误，请检查网络连接')
     }

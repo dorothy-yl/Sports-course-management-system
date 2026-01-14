@@ -56,6 +56,12 @@ const routes = [
         meta: { title: '课程详情', icon: 'VideoPlay', hidden: true }
       },
       {
+        path: 'courses/tips/:id',
+        name: 'CourseTips',
+        component: () => import('@/views/course/CourseTips.vue'),
+        meta: { title: '课程提示详情', icon: 'VideoPlay', hidden: true }
+      },
+      {
         path: 'media',
         name: 'MediaLibrary',
         component: () => import('@/views/media/MediaLibrary.vue'),

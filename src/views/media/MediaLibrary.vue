@@ -123,7 +123,7 @@ import { useClipboard } from '@vueuse/core'
 const loading = ref(false)
 const imageList = ref([])
 const filterCategory = ref('')
-const uploadAction = import.meta.env.VITE_API_BASE_URL + '/media/upload/image'
+const uploadAction = import.meta.env.VITE_API_BASE_URL + '/uploadCourse'
 
 const pagination = reactive({
   page: 1,
