@@ -106,3 +106,30 @@ export const addCourseTip = (data) => {
   })
 }
 
+// 根据提示ID查询提示详情
+export const getCourseTipById = (tipId) => {
+  return request({
+    url: '/system/courseTip/getCourseTipById',
+    method: 'get',
+    params: { tipId }
+  })
+}
+
+// 根据提示ID删除提示
+export const deleteCourseTipById = (tipId) => {
+  return request({
+    url: '/system/courseTip/deleteCourseTipById',
+    method: 'get',
+    params: { tipId }
+  })
+}
+
+// 更新课程提示内容
+export const updateCourseTip = (data) => {
+  return request({
+    url: '/system/courseTip/updateCourseTip',
+    method: 'post',
+    data
+  })
+}
+

@@ -36,6 +36,13 @@
         <el-table-column prop="set" label="组数" width="100" align="center" />
         <el-table-column prop="interval" label="间隔" width="100" align="center" />
         <el-table-column prop="state" label="状态" width="100" align="center" />
+        <el-table-column label="操作" width="200" align="center" fixed="right">
+          <template #default="{ row }">
+            <el-button type="primary" link @click="handleView(row)">查看</el-button>
+            <el-button type="primary" link @click="handleUpdate(row)">修改</el-button>
+            <el-button type="primary" link @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       
       <div v-if="!loading && tipsList.length === 0" class="empty-state">
@@ -43,10 +50,45 @@
       </div>
     </el-card>
 
-    <!-- 新增课程提示弹窗 -->
+    <!-- 查看提示详情弹窗 -->
+    <el-dialog
+      v-model="viewDialogVisible"
+      title="提示详情"
+      width="800px"
+      :close-on-click-modal="false"
+    >
+      <el-descriptions :column="2" border v-loading="viewLoading">
+        <el-descriptions-item label="课程名称">{{ viewData.courseName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="时长">{{ viewData.duration || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="阶段">{{ viewData.stage || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="阶段提示">{{ viewData.stageTips || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="阶段提示(英文)">{{ viewData.stageTipsEn || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="开始-结束时间">{{ viewData.time || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="开始时间(分)">{{ viewData.startTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="开始时间(秒)">{{ viewData.startTimeSeconds ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="提示时间(分)">{{ viewData.tipTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="提示时间(秒)">{{ viewData.tipTimeSeconds ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="时速">{{ viewData.speed ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="坡度">{{ viewData.slope ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="阻力">{{ viewData.resistance ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="功率">{{ viewData.power || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="桨频">{{ viewData.tempo || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="片段">{{ viewData.segment || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="组数">{{ viewData.set || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="间隔">{{ viewData.interval || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="状态">{{ viewData.state || '-' }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="viewDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 新增/修改课程提示弹窗 -->
     <el-dialog
       v-model="dialogVisible"
-      title="新增课程提示"
+      :title="dialogTitle"
       width="800px"
       :close-on-click-modal="false"
     >
@@ -196,8 +238,8 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { getProCourseTips, addCourseTip } from '@/api/course'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { getProCourseTips, addCourseTip, getCourseTipById, deleteCourseTipById, updateCourseTip } from '@/api/course'
 
 const route = useRoute()
 const router = useRouter()
@@ -208,9 +250,15 @@ const courseName = ref('')
 const dialogVisible = ref(false)
 const formRef = ref(null)
 const submitting = ref(false)
+const viewDialogVisible = ref(false)
+const viewLoading = ref(false)
+const viewData = ref({})
+const dialogTitle = ref('新增课程提示')
+const isEditMode = ref(false)
 
 // 表单数据
 const formData = reactive({
+  id: undefined,
   courseId: null,
   courseName: '',
   duration: '',
@@ -320,8 +368,13 @@ const handleAddTip = () => {
     return
   }
   
+  // 设置为新增模式
+  isEditMode.value = false
+  dialogTitle.value = '新增课程提示'
+  
   // 重置表单
   Object.assign(formData, {
+    id: undefined,
     courseId: parseInt(courseId),
     courseName: courseName.value || '',
     duration: '',
@@ -342,6 +395,51 @@ const handleAddTip = () => {
     set: '',
     interval: '',
     state: ''
+  })
+  
+  dialogVisible.value = true
+  
+  // 清除表单验证
+  if (formRef.value) {
+    formRef.value.clearValidate()
+  }
+}
+
+// 打开修改弹窗
+const handleUpdate = (row) => {
+  if (!row || !row.id) {
+    ElMessage.error('提示ID不存在')
+    return
+  }
+  
+  // 设置为修改模式
+  isEditMode.value = true
+  dialogTitle.value = '修改课程提示'
+  
+  // 深拷贝当前行数据并赋值给表单
+  const courseId = route.params.id
+  Object.assign(formData, {
+    id: row.id,
+    courseId: row.courseId || parseInt(courseId),
+    courseName: row.courseName || courseName.value || '',
+    duration: row.duration || '',
+    stage: row.stage || '',
+    stageTips: row.stageTips || '',
+    stageTipsEn: row.stageTipsEn || '',
+    time: row.time || '',
+    startTime: row.startTime || '',
+    startTimeSeconds: row.startTimeSeconds ?? null,
+    tipTime: row.tipTime || '',
+    tipTimeSeconds: row.tipTimeSeconds ?? null,
+    speed: row.speed ?? null,
+    slope: row.slope ?? null,
+    resistance: row.resistance ?? null,
+    power: row.power || '',
+    tempo: row.tempo || '',
+    segment: row.segment || '',
+    set: row.set || '',
+    interval: row.interval || '',
+    state: row.state || ''
   })
   
   dialogVisible.value = true
@@ -380,6 +478,18 @@ const handleSubmit = async () => {
       courseId: courseId
     }
     
+    // 如果是修改模式，必须包含 id 字段，并确保是整数类型
+    if (isEditMode.value && formData.id) {
+      const tipId = parseInt(formData.id)
+      if (!isNaN(tipId) && tipId > 0) {
+        submitData.id = tipId
+      } else {
+        ElMessage.error('提示ID无效')
+        submitting.value = false
+        return
+      }
+    }
+    
     // 字符串类型字段（去除首尾空格，空字符串不传递）
     const stringFields = ['courseName', 'duration', 'stage', 'stageTips', 'stageTipsEn', 'time', 'startTime', 'tipTime', 'power', 'tempo', 'segment', 'set', 'interval', 'state']
     stringFields.forEach(field => {
@@ -405,11 +515,20 @@ const handleSubmit = async () => {
     // 调试：打印提交的数据
     console.log('提交的课程提示数据：', submitData)
     
-    // 调用API
-    const response = await addCourseTip(submitData)
-    console.log('API 响应：', response)
+    // 根据是否有 id 判断是新增还是修改
+    let response
+    if (isEditMode.value && submitData.id) {
+      // 修改模式
+      response = await updateCourseTip(submitData)
+      console.log('修改API 响应：', response)
+      ElMessage.success('修改成功')
+    } else {
+      // 新增模式
+      response = await addCourseTip(submitData)
+      console.log('新增API 响应：', response)
+      ElMessage.success('新增成功')
+    }
     
-    ElMessage.success('新增成功')
     dialogVisible.value = false
     
     // 刷新列表
@@ -419,10 +538,11 @@ const handleSubmit = async () => {
     // 此时 Element Plus 会自动显示字段错误提示，我们不需要额外处理
     if (error.response) {
       // 这是 API 请求错误，显示错误信息
-      console.error('新增课程提示失败:', error)
+      const action = isEditMode.value ? '修改' : '新增'
+      console.error(`${action}课程提示失败:`, error)
       console.error('错误详情:', error.response)
       
-      let errorMessage = '新增失败，请重试'
+      let errorMessage = `${action}失败，请重试`
       if (error.response?.data?.msg) {
         errorMessage = error.response.data.msg
       } else if (error.response?.data?.message) {
@@ -435,6 +555,80 @@ const handleSubmit = async () => {
     // 如果是表单验证失败（没有 error.response），Element Plus 已自动显示错误，这里不做处理
   } finally {
     submitting.value = false
+  }
+}
+
+// 查看提示详情
+const handleView = async (row) => {
+  if (!row || !row.id) {
+    ElMessage.error('提示ID不存在')
+    return
+  }
+  
+  viewLoading.value = true
+  viewDialogVisible.value = true
+  
+  try {
+    const res = await getCourseTipById(row.id)
+    console.log('提示详情数据：', res)
+    
+    if (res && res.data) {
+      viewData.value = res.data
+    } else if (res) {
+      viewData.value = res
+    } else {
+      viewData.value = {}
+      ElMessage.warning('未获取到提示详情')
+    }
+  } catch (error) {
+    console.error('获取提示详情失败:', error)
+    ElMessage.error('获取提示详情失败')
+    viewData.value = {}
+  } finally {
+    viewLoading.value = false
+  }
+}
+
+// 删除提示
+const handleDelete = async (row) => {
+  if (!row || !row.id) {
+    ElMessage.error('提示ID不存在')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      '是否确认删除这条提示内容？',
+      '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    // 用户确认删除
+    const res = await deleteCourseTipById(row.id)
+    console.log('删除响应：', res)
+    
+    ElMessage.success('删除成功')
+    
+    // 刷新列表
+    await fetchCourseTips()
+  } catch (error) {
+    // 用户取消删除时，ElMessageBox.confirm 会 reject，但不应该显示错误
+    if (error !== 'cancel') {
+      console.error('删除提示失败:', error)
+      let errorMessage = '删除失败，请重试'
+      if (error.response?.data?.msg) {
+        errorMessage = error.response.data.msg
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      ElMessage.error(errorMessage)
+    }
   }
 }
 
