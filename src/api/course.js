@@ -91,7 +91,7 @@ export const updateSysCourse = (data) => {
 // 根据课程id查询提示内容
 export const getProCourseTips = (courseId) => {
   return request({
-    url: '/system/course/getProCourseTips',
+    url: '/system/courseTip/getProCourseTips',
     method: 'get',
     params: { courseId }
   })
@@ -100,8 +100,9 @@ export const getProCourseTips = (courseId) => {
 // 新增课程提示内容
 export const addCourseTip = (data) => {
   return request({
-    url: '/system/course/addCourseTip',
+    url: '/system/courseTip/addCourseTip',
     method: 'post',
     data
   })
 }
+

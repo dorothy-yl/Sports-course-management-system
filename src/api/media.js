@@ -1,14 +1,5 @@
 import request from './request'
 
-// 获取图片列表
-export const getImageList = (params) => {
-  return request({
-    url: '/media/images',
-    method: 'get',
-    params
-  })
-}
-
 // 上传图片
 export const uploadImage = (file, category) => {
   const formData = new FormData()
@@ -43,13 +34,5 @@ export const uploadVideo = (file, onProgress) => {
         onProgress(percent)
       }
     }
-  })
-}
-
-// 删除图片
-export const deleteImage = (id) => {
-  return request({
-    url: `/media/images/${id}`,
-    method: 'delete'
   })
 }

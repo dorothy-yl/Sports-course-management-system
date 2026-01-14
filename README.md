@@ -30,8 +30,6 @@ sports-management/
 │   │   │   ├── CourseList.vue      # 课程列表
 │   │   │   ├── CourseEditor.vue    # 课程编辑器
 │   │   │   └── CoursePreview.vue   # 课程预览
-│   │   ├── media/
-│   │   │   └── MediaLibrary.vue    # 图片素材库
 │   │   ├── profile/
 │   │   │   └── AdminProfile.vue    # 管理员个人中心
 │   │   └── Login.vue               # 登录页

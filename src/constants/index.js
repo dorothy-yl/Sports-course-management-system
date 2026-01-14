@@ -82,9 +82,3 @@ export const getLoginMethodsByRegion = (region) => {
   return region === 'domestic' ? DOMESTIC_LOGIN_METHODS : INTERNATIONAL_LOGIN_METHODS
 }
 
-// 图片分类
-export const IMAGE_CATEGORIES = [
-  { label: '课程封面', value: 'course_cover' },
-  { label: 'Banner', value: 'banner' },
-  { label: '其他', value: 'other' }
-]

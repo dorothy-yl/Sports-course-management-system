@@ -62,12 +62,6 @@ const routes = [
         meta: { title: '课程提示详情', icon: 'VideoPlay', hidden: true }
       },
       {
-        path: 'media',
-        name: 'MediaLibrary',
-        component: () => import('@/views/media/MediaLibrary.vue'),
-        meta: { title: '图片素材', icon: 'Picture' }
-      },
-      {
         path: 'profile',
         name: 'AdminProfile',
         component: () => import('@/views/profile/AdminProfile.vue'),

@@ -113,7 +113,7 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="课程时长" width="150" align="center">
+        <el-table-column label="训练时间" width="150" align="center">
           <template #default="{ row }">
             {{ row.duration || '-' }}
           </template>

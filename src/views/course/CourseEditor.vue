@@ -146,14 +146,7 @@
           
           <el-divider content-position="left">课程描述</el-divider>
           
-          <el-form-item label="副标题">
-            <el-input
-              v-model="formData.theSubtitle"
-              placeholder="请输入副标题"
-              maxlength="200"
-              show-word-limit
-            />
-          </el-form-item>
+    
           
           <el-form-item label="热量值">
             <el-input
@@ -175,17 +168,6 @@
             />
           </el-form-item>
           
-          <el-form-item label="简要特点">
-            <el-input
-              v-model="formData.briefFeatures"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入简要特点"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-          
           <el-form-item label="课程特色">
             <el-input
               v-model="formData.courseFeatures"
@@ -197,7 +179,6 @@
             />
           </el-form-item>
           
-          <el-divider content-position="left">训练信息</el-divider>
           
           <el-form-item label="训练时间" prop="trainingTime">
             <el-input
@@ -208,14 +189,7 @@
             />
           </el-form-item>
           
-          <el-form-item label="训练频率">
-            <el-input
-              v-model="formData.trainingFrequency"
-              placeholder="请输入训练频率"
-              maxlength="100"
-              show-word-limit
-            />
-          </el-form-item>
+          
           
           <el-form-item label="身体反应">
             <el-input
@@ -250,40 +224,6 @@
             />
           </el-form-item>
           
-          <el-form-item label="训练方法">
-            <el-input
-              v-model="formData.trainingMethods"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入训练方法"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-          
-          <el-form-item label="训练过程">
-            <el-input
-              v-model="formData.trainingProcess"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入训练过程"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-          
-          <el-form-item label="培训效果">
-            <el-input
-              v-model="formData.trainingEffect"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入培训效果"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-          
-          <el-divider content-position="left">适用人群</el-divider>
           
           <el-form-item label="适用人群" prop="userGroup">
             <el-input
@@ -306,41 +246,7 @@
               show-word-limit
             />
           </el-form-item>
-          
-          <el-divider content-position="left">器材与锻炼部位</el-divider>
-          
-          <el-form-item label="锻炼部位">
-            <el-input
-              v-model="formData.exerciseSite"
-              placeholder="请输入锻炼部位"
-              maxlength="100"
-              show-word-limit
-            />
-          </el-form-item>
-          
-          <el-form-item label="必需器材">
-            <el-input
-              v-model="formData.requiredEquipment"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入必需器材"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-          
-          <el-form-item label="推荐器材">
-            <el-input
-              v-model="formData.recommendedEquipment"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入推荐器材"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
-          
-          <el-divider content-position="left">建议与反馈</el-divider>
+         
           
           <el-form-item label="课程建议">
             <el-input
@@ -353,16 +259,7 @@
             />
           </el-form-item>
           
-          <el-form-item label="安全提示">
-            <el-input
-              v-model="formData.safetyTips"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入安全提示"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
+       
           
           <el-form-item label="系列特点">
             <el-input
@@ -386,16 +283,7 @@
             />
           </el-form-item>
           
-          <el-form-item label="特别备注">
-            <el-input
-              v-model="formData.specialRemarks"
-              type="textarea"
-              :rows="3"
-              placeholder="请输入特别备注"
-              maxlength="500"
-              show-word-limit
-            />
-          </el-form-item>
+          
         </template>
         
         <!-- 操作按钮 -->

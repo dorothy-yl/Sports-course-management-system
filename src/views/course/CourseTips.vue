@@ -439,6 +439,7 @@ const handleSubmit = async () => {
 }
 
 onMounted(() => {
+  // 获取课程提示数据
   fetchCourseTips()
 })
 </script>
