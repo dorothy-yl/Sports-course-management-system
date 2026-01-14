@@ -133,3 +133,21 @@ export const updateCourseTip = (data) => {
   })
 }
 
+// 批量添加课程提示
+export const batchAddCourseTip = (data) => {
+  return request({
+    url: '/system/courseTip/batchAddCourseTip',
+    method: 'post',
+    data
+  })
+}
+
+// 根据课程ID清空所有提示
+export const clearCourseTips = (courseId) => {
+  return request({
+    url: '/system/courseTip/deleteCourseTipByCourseId',
+    method: 'get',
+    params: { courseId }
+  })
+}
+

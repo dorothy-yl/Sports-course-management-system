@@ -7,7 +7,11 @@
         <div class="course-info" v-if="courseName">
           <h2>{{ courseName }}</h2>
         </div>
-        <el-button type="primary" @click="handleAddTip">新增提示</el-button>
+        <div class="toolbar-buttons">
+          <el-button type="success" @click="handleBatchAdd">批量添加</el-button>
+          <el-button type="primary" @click="handleAddTip">新增提示</el-button>
+          <el-button type="danger" :icon="Delete" @click="handleClearAll" :disabled="tipsList.length === 0">清空全部</el-button>
+        </div>
       </div>
       
       <el-table
@@ -232,6 +236,142 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 批量添加课程提示弹窗 -->
+    <el-dialog
+      v-model="batchDialogVisible"
+      title="批量添加课程提示"
+      width="90%"
+      :close-on-click-modal="false"
+      top="5vh"
+    >
+      <div class="batch-add-container">
+        <!-- Excel 导入区域 -->
+        <div class="excel-import-section">
+          <el-upload
+            ref="uploadRef"
+            :auto-upload="false"
+            :on-change="handleExcelChange"
+            :show-file-list="false"
+            accept=".xlsx,.xls"
+            style="margin-bottom: 20px"
+          >
+            <template #trigger>
+              <el-button type="primary">
+                <el-icon><Upload /></el-icon>
+                导入 Excel 文件
+              </el-button>
+            </template>
+          </el-upload>
+          <span class="import-tip">支持 .xlsx 和 .xls 格式，请确保 Excel 文件包含：阶段、时长、开始时间、提示时间、时速、坡度、阻力 等列</span>
+        </div>
+
+        <!-- 批量编辑表格 -->
+        <div class="batch-table-section">
+          <div class="table-toolbar">
+            <el-button type="primary" @click="handleAddRow">+ 添加一行</el-button>
+            <span class="row-count">共 {{ batchList.length }} 行</span>
+          </div>
+          <el-table
+            :data="batchList"
+            stripe
+            border
+            style="width: 100%"
+            max-height="500"
+          >
+            <el-table-column type="index" label="序号" width="60" align="center" />
+            <el-table-column label="阶段" min-width="120" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.stage"
+                  placeholder="请输入阶段"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="时长" min-width="120" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.duration"
+                  placeholder="如：1min"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="开始时间" min-width="120" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.startTime"
+                  placeholder="如：00:42"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="提示时间" min-width="120" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.tipTime"
+                  placeholder="如：01:51"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="时速" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input-number
+                  v-model="row.speed"
+                  :min="0"
+                  :precision="0"
+                  placeholder="时速"
+                  size="small"
+                  style="width: 100%"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="坡度" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input-number
+                  v-model="row.slope"
+                  :min="0"
+                  placeholder="坡度"
+                  size="small"
+                  style="width: 100%"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="阻力" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input-number
+                  v-model="row.resistance"
+                  :min="0"
+                  placeholder="阻力"
+                  size="small"
+                  style="width: 100%"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="100" align="center" fixed="right">
+              <template #default="{ row, $index }">
+                <el-button
+                  type="danger"
+                  link
+                  @click="handleDeleteRow($index)"
+                >
+                  删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleBatchCancel">取消</el-button>
+          <el-button type="primary" @click="handleBatchSubmit" :loading="batchSubmitting">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -239,7 +379,9 @@
 import { ref, onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getProCourseTips, addCourseTip, getCourseTipById, deleteCourseTipById, updateCourseTip } from '@/api/course'
+import { Upload, Delete } from '@element-plus/icons-vue'
+import * as XLSX from 'xlsx'
+import { getProCourseTips, addCourseTip, getCourseTipById, deleteCourseTipById, updateCourseTip, batchAddCourseTip, clearCourseTips } from '@/api/course'
 
 const route = useRoute()
 const router = useRouter()
@@ -255,6 +397,12 @@ const viewLoading = ref(false)
 const viewData = ref({})
 const dialogTitle = ref('新增课程提示')
 const isEditMode = ref(false)
+
+// 批量添加相关
+const batchDialogVisible = ref(false)
+const batchList = ref([])
+const batchSubmitting = ref(false)
+const uploadRef = ref(null)
 
 // 表单数据
 const formData = reactive({
@@ -632,6 +780,247 @@ const handleDelete = async (row) => {
   }
 }
 
+// 打开批量添加弹窗
+const handleBatchAdd = () => {
+  const courseId = route.params.id
+  if (!courseId) {
+    ElMessage.error('课程ID不存在')
+    return
+  }
+  
+  // 初始化 5 行空数据
+  batchList.value = Array.from({ length: 5 }, () => ({
+    stage: '',
+    duration: '',
+    startTime: '',
+    tipTime: '',
+    speed: null,
+    slope: null,
+    resistance: null
+  }))
+  
+  batchDialogVisible.value = true
+}
+
+// 添加一行
+const handleAddRow = () => {
+  batchList.value.push({
+    stage: '',
+    duration: '',
+    startTime: '',
+    tipTime: '',
+    speed: null,
+    slope: null,
+    resistance: null
+  })
+}
+
+// 删除一行
+const handleDeleteRow = (index) => {
+  if (batchList.value.length <= 1) {
+    ElMessage.warning('至少保留一行数据')
+    return
+  }
+  batchList.value.splice(index, 1)
+}
+
+// Excel 文件变化处理
+const handleExcelChange = (file) => {
+  const fileReader = new FileReader()
+  fileReader.onload = (e) => {
+    try {
+      const data = new Uint8Array(e.target.result)
+      const workbook = XLSX.read(data, { type: 'array' })
+      
+      // 读取第一个工作表
+      const firstSheetName = workbook.SheetNames[0]
+      const worksheet = workbook.Sheets[firstSheetName]
+      
+      // 转换为 JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet)
+      
+      if (!jsonData || jsonData.length === 0) {
+        ElMessage.warning('Excel 文件为空或格式不正确')
+        return
+      }
+      
+      // 映射 Excel 列到数据字段
+      // 支持多种可能的列名
+      const mappedData = jsonData.map(row => {
+        const item = {
+          stage: row['阶段'] || row['stage'] || row['Stage'] || '',
+          duration: row['时长'] || row['duration'] || row['Duration'] || '',
+          startTime: row['开始时间'] || row['startTime'] || row['StartTime'] || row['开始时间(分)'] || '',
+          tipTime: row['提示时间'] || row['tipTime'] || row['TipTime'] || row['提示时间(分)'] || '',
+          speed: row['时速'] || row['speed'] || row['Speed'] || null,
+          slope: row['坡度'] || row['slope'] || row['Slope'] || null,
+          resistance: row['阻力'] || row['resistance'] || row['Resistance'] || null
+        }
+        
+        // 处理数字类型
+        if (item.speed !== null && item.speed !== undefined && item.speed !== '') {
+          item.speed = Number(item.speed)
+          if (isNaN(item.speed)) item.speed = null
+        }
+        if (item.slope !== null && item.slope !== undefined && item.slope !== '') {
+          item.slope = Number(item.slope)
+          if (isNaN(item.slope)) item.slope = null
+        }
+        if (item.resistance !== null && item.resistance !== undefined && item.resistance !== '') {
+          item.resistance = Number(item.resistance)
+          if (isNaN(item.resistance)) item.resistance = null
+        }
+        
+        return item
+      })
+      
+      batchList.value = mappedData
+      ElMessage.success(`成功导入 ${mappedData.length} 条数据`)
+    } catch (error) {
+      console.error('Excel 解析失败:', error)
+      ElMessage.error('Excel 文件解析失败，请检查文件格式')
+    }
+  }
+  
+  fileReader.readAsArrayBuffer(file.raw)
+}
+
+// 取消批量添加
+const handleBatchCancel = () => {
+  batchDialogVisible.value = false
+  batchList.value = []
+}
+
+// 批量提交
+const handleBatchSubmit = async () => {
+  const courseId = route.params.id
+  if (!courseId) {
+    ElMessage.error('课程ID不存在')
+    return
+  }
+  
+  // 校验数组是否为空
+  if (!batchList.value || batchList.value.length === 0) {
+    ElMessage.warning('请至少添加一条数据')
+    return
+  }
+  
+  // 过滤掉完全空的行
+  const validList = batchList.value.filter(item => {
+    return item.stage || item.duration || item.startTime || item.tipTime || 
+           item.speed !== null || item.slope !== null || item.resistance !== null
+  })
+  
+  if (validList.length === 0) {
+    ElMessage.warning('请至少填写一条有效数据')
+    return
+  }
+  
+  // 为每条数据添加 courseId 和 courseName
+  const courseIdNum = parseInt(courseId)
+  const submitData = validList.map(item => {
+    const dataItem = {
+      courseId: courseIdNum,
+      courseName: courseName.value || ''
+    }
+    
+    // 只添加有值的字段
+    if (item.stage) dataItem.stage = item.stage.trim()
+    if (item.duration) dataItem.duration = item.duration.trim()
+    if (item.startTime) dataItem.startTime = item.startTime.trim()
+    if (item.tipTime) dataItem.tipTime = item.tipTime.trim()
+    if (item.speed !== null && item.speed !== undefined && item.speed !== '') {
+      dataItem.speed = Math.floor(Number(item.speed))
+    }
+    if (item.slope !== null && item.slope !== undefined && item.slope !== '') {
+      dataItem.slope = Number(item.slope)
+    }
+    if (item.resistance !== null && item.resistance !== undefined && item.resistance !== '') {
+      dataItem.resistance = Math.floor(Number(item.resistance))
+    }
+    
+    return dataItem
+  })
+  
+  batchSubmitting.value = true
+  try {
+    console.log('批量提交数据：', submitData)
+    const response = await batchAddCourseTip(submitData)
+    console.log('批量添加API 响应：', response)
+    
+    ElMessage.success(`批量添加成功，共添加 ${submitData.length} 条数据`)
+    batchDialogVisible.value = false
+    batchList.value = []
+    
+    // 刷新列表
+    await fetchCourseTips()
+  } catch (error) {
+    console.error('批量添加失败:', error)
+    let errorMessage = '批量添加失败，请重试'
+    if (error.response?.data?.msg) {
+      errorMessage = error.response.data.msg
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    ElMessage.error(errorMessage)
+  } finally {
+    batchSubmitting.value = false
+  }
+}
+
+// 清空全部提示
+const handleClearAll = async () => {
+  const courseId = route.params.id
+  if (!courseId) {
+    ElMessage.error('课程ID不存在')
+    return
+  }
+  
+  // 如果列表为空，不应该执行（虽然按钮已禁用，但作为双重保护）
+  if (tipsList.value.length === 0) {
+    ElMessage.warning('当前没有可清空的数据')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      '确定要清空当前课程的所有提示内容吗？此操作不可恢复！',
+      '警告',
+      {
+        confirmButtonText: '确定清空',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    // 用户确认清空
+    const courseIdNum = parseInt(courseId)
+    const res = await clearCourseTips(courseIdNum)
+    console.log('清空响应：', res)
+    
+    ElMessage.success('清空成功')
+    
+    // 刷新列表（此时表格应变为空）
+    await fetchCourseTips()
+  } catch (error) {
+    // 用户取消清空时，ElMessageBox.confirm 会 reject，但不应该显示错误
+    if (error !== 'cancel') {
+      console.error('清空提示失败:', error)
+      let errorMessage = '清空失败，请重试'
+      if (error.response?.data?.msg) {
+        errorMessage = error.response.data.msg
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      ElMessage.error(errorMessage)
+    }
+  }
+}
+
 onMounted(() => {
   // 获取课程提示数据
   fetchCourseTips()
@@ -648,6 +1037,11 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.toolbar-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 .course-info {
@@ -682,5 +1076,38 @@ onMounted(() => {
   .course-info h2 {
     font-size: 20px;
   }
+}
+
+.batch-add-container {
+  padding: 10px 0;
+}
+
+.excel-import-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+
+.import-tip {
+  margin-left: 10px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.batch-table-section {
+  margin-top: 20px;
+}
+
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.row-count {
+  color: #909399;
+  font-size: 14px;
 }
 </style>
