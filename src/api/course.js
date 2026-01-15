@@ -72,10 +72,38 @@ export const getCourseHotRanking = () => {
 
 // 新增课程
 export const addProCourse = (data) => {
+  const formData = new FormData()
+  const getValue = (key) => {
+    if (!data) return undefined
+    if (data instanceof FormData) return data.get(key)
+    return data[key]
+  }
+
+  const deviceType = getValue('deviceType')
+  const coverImage = getValue('coverImage')
+  const coverVideo = getValue('coverVideo')
+  const videoUrl = getValue('videoUrl')
+
+  if (deviceType !== undefined && deviceType !== null) {
+    formData.append('deviceType', deviceType)
+  }
+
+  if (coverImage) {
+    formData.append('coverImage', coverImage.raw ? coverImage.raw : coverImage)
+  }
+
+  if (coverVideo) {
+    formData.append('coverVideo', coverVideo.raw ? coverVideo.raw : coverVideo)
+  }
+
+  if (videoUrl) {
+    formData.append('videoUrl', videoUrl.raw ? videoUrl.raw : videoUrl)
+  }
+
   return request({
     url: '/system/course/addProCourse',
     method: 'post',
-    data
+    data: formData
   })
 }
 

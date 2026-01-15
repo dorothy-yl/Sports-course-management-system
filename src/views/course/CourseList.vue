@@ -68,6 +68,79 @@
         </div>
       </div>
     </el-card>
+
+    <!-- 新增课程弹窗 -->
+    <el-dialog
+      v-model="addDialogVisible"
+      title="新增课程"
+      width="520px"
+      @closed="resetAddForm"
+    >
+      <el-form ref="addFormRef" :model="addForm" label-width="110px">
+        <el-form-item label="设备类型">
+          <el-select v-model="addForm.deviceType" placeholder="请选择设备类型" style="width: 100%">
+            <el-option label="跑步机" :value="0" />
+            <el-option label="脚踏车" :value="1" />
+            <el-option label="划船机" :value="2" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="课程封面">
+          <el-upload
+            accept="image/*"
+            :limit="1"
+            :auto-upload="false"
+            :file-list="coverImageList"
+            @change="handleCoverImageChange"
+            @remove="handleCoverImageRemove"
+          >
+            <el-button type="primary">选择图片</el-button>
+            <template #tip>
+              <div class="el-upload__tip">只能上传一张图片</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="视频缩略图">
+          <el-upload
+            accept="image/*"
+            :limit="1"
+            :auto-upload="false"
+            :file-list="coverVideoList"
+            @change="handleCoverVideoChange"
+            @remove="handleCoverVideoRemove"
+          >
+            <el-button type="primary">选择图片</el-button>
+            <template #tip>
+              <div class="el-upload__tip">只能上传一张图片</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="视频文件">
+          <el-upload
+            accept="video/*"
+            :limit="1"
+            :auto-upload="false"
+            :file-list="videoUrlList"
+            @change="handleVideoUrlChange"
+            @remove="handleVideoUrlRemove"
+          >
+            <el-button type="primary">选择视频</el-button>
+            <template #tip>
+              <div class="el-upload__tip">只能上传一个视频文件</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="addDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="addSubmitting" @click="submitAddForm">
+          确定
+        </el-button>
+      </template>
+    </el-dialog>
     
     <!-- 课程列表 -->
     <el-card class="page-card">
@@ -159,7 +232,7 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getCourseList, deleteCourse } from '@/api/course'
+import { getCourseList, deleteCourse, addProCourse } from '@/api/course'
 import { formatDate, formatSeconds, getCourseTypeName } from '@/utils/format'
 import { COURSE_TYPE_OPTIONS } from '@/constants'
 
@@ -178,6 +251,19 @@ const pagination = reactive({
   pageSize: 10,
   total: 0
 })
+
+const addDialogVisible = ref(false)
+const addSubmitting = ref(false)
+const addFormRef = ref(null)
+const addForm = reactive({
+  deviceType: 0,
+  coverImage: null,
+  coverVideo: null,
+  videoUrl: null
+})
+const coverImageList = ref([])
+const coverVideoList = ref([])
+const videoUrlList = ref([])
 
 // 获取课程类型标签颜色
 const getCourseTypeTag = (type) => {
@@ -283,7 +369,75 @@ const handleSearch = () => {
 
 // 新增课程
 const handleCreate = () => {
-  router.push('/courses/create')
+  addDialogVisible.value = true
+}
+
+const handleCoverImageChange = (file, fileList) => {
+  coverImageList.value = fileList
+  addForm.coverImage = file?.raw || null
+}
+
+const handleCoverImageRemove = () => {
+  coverImageList.value = []
+  addForm.coverImage = null
+}
+
+const handleCoverVideoChange = (file, fileList) => {
+  coverVideoList.value = fileList
+  addForm.coverVideo = file?.raw || null
+}
+
+const handleCoverVideoRemove = () => {
+  coverVideoList.value = []
+  addForm.coverVideo = null
+}
+
+const handleVideoUrlChange = (file, fileList) => {
+  videoUrlList.value = fileList
+  addForm.videoUrl = file?.raw || null
+}
+
+const handleVideoUrlRemove = () => {
+  videoUrlList.value = []
+  addForm.videoUrl = null
+}
+
+const resetAddForm = () => {
+  addForm.deviceType = 0
+  addForm.coverImage = null
+  addForm.coverVideo = null
+  addForm.videoUrl = null
+  coverImageList.value = []
+  coverVideoList.value = []
+  videoUrlList.value = []
+  addSubmitting.value = false
+}
+
+const submitAddForm = async () => {
+  if (!addForm.coverImage || !addForm.coverVideo || !addForm.videoUrl) {
+    ElMessage.warning('请完整选择课程封面、视频缩略图和视频文件')
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('deviceType', addForm.deviceType)
+  formData.append('coverImage', addForm.coverImage)
+  formData.append('coverVideo', addForm.coverVideo)
+  formData.append('videoUrl', addForm.videoUrl)
+
+  addSubmitting.value = true
+  try {
+    await addProCourse(formData)
+    ElMessage.success('新增课程成功')
+    addDialogVisible.value = false
+    pagination.pageNum = 1
+    fetchCourseList()
+  } catch (error) {
+    console.error('新增课程失败:', error)
+    ElMessage.error('新增课程失败')
+  } finally {
+    addSubmitting.value = false
+  }
 }
 
 
