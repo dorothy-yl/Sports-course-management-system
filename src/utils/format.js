@@ -61,3 +61,15 @@ export const getGenderName = (gender) => {
   return map[gender] || gender
 }
 
+// 处理后端返回的相对资源地址
+export const resolveAssetUrl = (url) => {
+  if (!url) return ''
+  if (/^https?:\/\//i.test(url)) return url
+  const base = import.meta.env.VITE_API_BASE_URL || ''
+  try {
+    return new URL(url, base).toString()
+  } catch (error) {
+    return url
+  }
+}
+

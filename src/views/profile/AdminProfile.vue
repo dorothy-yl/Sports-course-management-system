@@ -13,134 +13,102 @@
             <p class="profile-email">{{ adminInfo.email }}</p>
           </div>
           
-          <el-divider />
-          
-          <div class="profile-stats">
-            <div class="stat-item">
-              <div class="stat-value">{{ stats.managedUsers }}</div>
-              <div class="stat-label">管理用户数</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ stats.managedCourses }}</div>
-              <div class="stat-label">管理课程数</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ stats.uploadedImages }}</div>
-              <div class="stat-label">上传图片数</div>
-            </div>
-          </div>
+       
         </el-card>
       </el-col>
       
       <el-col :xs="24" :md="16">
         <el-card class="info-card">
-          <template #header>
-            <div class="card-header">
-              <span>个人信息</span>
-              <el-button
-                v-if="!isEditing"
-                type="primary"
-                size="small"
-                @click="handleEdit"
-              >
-                编辑
-              </el-button>
-              <div v-else>
-                <el-button size="small" @click="handleCancel">取消</el-button>
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="handleSave"
-                  :loading="saving"
+          <el-tabs v-model="activeTab">
+            
+            <el-tab-pane label="基本资料" name="userinfo">
+              <div class="tab-content">
+                <el-form
+                  ref="formRef"
+                  :model="formData"
+                  :rules="rules"
+                  label-width="100px"
+                  class="profile-form"
                 >
-                  保存
-                </el-button>
+                 
+                  
+                  <el-form-item label="昵称" prop="nickname">
+                    <el-input
+                      v-model="formData.nickname"
+                      placeholder="请输入昵称"
+                    />
+                  </el-form-item>
+                  
+                  <el-form-item label="邮箱" prop="email">
+                    <el-input
+                      v-model="formData.email"
+                      placeholder="请输入邮箱"
+                    />
+                  </el-form-item>
+                  
+                  <el-form-item label="手机号" prop="phone">
+                    <el-input
+                      v-model="formData.phone"
+                      placeholder="请输入手机号"
+                    />
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="handleSave" :loading="saving">
+                      保存
+                    </el-button>
+                    <el-button @click="handleCancel">关闭</el-button>
+                  </el-form-item>
+                </el-form>
               </div>
-            </div>
-          </template>
-          
-          <el-form
-            ref="formRef"
-            :model="formData"
-            :rules="rules"
-            label-width="100px"
-          >
-            <el-form-item label="用户名">
-              <el-input v-model="adminInfo.username" disabled />
-            </el-form-item>
-            
-            <el-form-item label="昵称" prop="nickname">
-              <el-input
-                v-model="formData.nickname"
-                :disabled="!isEditing"
-                placeholder="请输入昵称"
-              />
-            </el-form-item>
-            
-            <el-form-item label="邮箱" prop="email">
-              <el-input
-                v-model="formData.email"
-                :disabled="!isEditing"
-                placeholder="请输入邮箱"
-              />
-            </el-form-item>
-            
-            <el-form-item label="手机号" prop="phone">
-              <el-input
-                v-model="formData.phone"
-                :disabled="!isEditing"
-                placeholder="请输入手机号"
-              />
-            </el-form-item>
-          </el-form>
-        </el-card>
-        
-        <el-card class="password-card" style="margin-top: 20px">
-          <template #header>
-            <div class="card-header">
-              <span>修改密码</span>
-            </div>
-          </template>
-          
-          <el-form
-            ref="passwordFormRef"
-            :model="passwordForm"
-            :rules="passwordRules"
-            label-width="100px"
-          >
-            <el-form-item label="原密码" prop="oldPassword">
-              <el-input
-                v-model="passwordForm.oldPassword"
-                type="password"
-                placeholder="请输入原密码"
-                show-password
-              />
-            </el-form-item>
-            
-            <el-form-item label="新密码" prop="newPassword">
-              <el-input
-                v-model="passwordForm.newPassword"
-                type="password"
-                placeholder="请输入新密码"
-                show-password
-              />
-            </el-form-item>
-            
-            <el-form-item label="确认密码" prop="confirmPassword">
-              <el-input
-                v-model="passwordForm.confirmPassword"
-                type="password"
-                placeholder="请再次输入新密码"
-                show-password
-              />
-            </el-form-item>
-            
-            <el-form-item>
-              <el-button type="primary" @click="handleChangePassword" :loading="changingPassword">
-                修改密码
-              </el-button>
-            </el-form-item>
-          </el-form>
+            </el-tab-pane>
+
+            <el-tab-pane label="修改密码" name="resetPwd">
+              <div class="tab-content">
+                <el-form
+                  ref="passwordFormRef"
+                  :model="passwordForm"
+                  :rules="passwordRules"
+                  label-width="100px"
+                  class="profile-form"
+                >
+                  <el-form-item label="原密码" prop="oldPassword">
+                    <el-input
+                      v-model="passwordForm.oldPassword"
+                      type="password"
+                      placeholder="请输入原密码"
+                      show-password
+                    />
+                  </el-form-item>
+                  
+                  <el-form-item label="新密码" prop="newPassword">
+                    <el-input
+                      v-model="passwordForm.newPassword"
+                      type="password"
+                      placeholder="请输入新密码"
+                      show-password
+                    />
+                  </el-form-item>
+                  
+                  <el-form-item label="确认密码" prop="confirmPassword">
+                    <el-input
+                      v-model="passwordForm.confirmPassword"
+                      type="password"
+                      placeholder="请再次输入新密码"
+                      show-password
+                    />
+                  </el-form-item>
+                  
+                  <el-form-item>
+                    <el-button type="primary" @click="handleChangePassword" :loading="changingPassword">
+                      确认修改
+                    </el-button>
+                    <el-button @click="resetPwdForm">重置</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+            </el-tab-pane>
+
+          </el-tabs>
         </el-card>
       </el-col>
     </el-row>
@@ -151,24 +119,31 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { required, email, phone } from '@/utils/validate'
+import { resolveAssetUrl } from '@/utils/format'
 import { useUserStore } from '@/stores/user'
-import { getAdminInfo, updateAdminInfo, changePassword, updateAvatar } from '@/api/user'
-import AvatarUpload from '@/components/upload/AvatarUpload.vue'
+import { useRouter } from 'vue-router'
+// 确保这个 AvatarUpload 组件路径是正确的，或者替换为您自己的上传组件逻辑
+import AvatarUpload from '@/components/upload/AvatarUpload.vue' 
+import { getAdminInfo, updateAdminInfo, changePassword } from '@/api/user'
 
 const userStore = useUserStore()
+const router = useRouter()
+
+// === 新增：控制当前激活的 Tab ===
+const activeTab = ref('userinfo')
 
 const formRef = ref(null)
 const passwordFormRef = ref(null)
-const isEditing = ref(false)
 const saving = ref(false)
 const changingPassword = ref(false)
+const isEditing = ref(false)
 
 const adminInfo = reactive({
   id: 1,
   username: 'admin',
-  nickname: '管理员',
-  email: 'admin@example.com',
-  phone: '13800138000',
+  nickname: '小仙女',
+  email: 'yi ang yang ya@example.com',
+  phone: '167758258',
   avatar: ''
 })
 
@@ -220,15 +195,23 @@ const passwordRules = {
 // 编辑
 const handleEdit = () => {
   isEditing.value = true
-  Object.assign(formData, adminInfo)
+  // 将当前信息复制到表单中
+  Object.assign(formData, {
+    nickname: adminInfo.nickname,
+    email: adminInfo.email,
+    phone: adminInfo.phone
+  })
 }
 
 // 取消
 const handleCancel = () => {
   isEditing.value = false
+  syncFormFromAdmin()
+  if (formRef.value) formRef.value.clearValidate()
+  router.push('/')
 }
 
-// 保存
+// 保存个人信息
 const handleSave = async () => {
   if (!formRef.value) return
   
@@ -243,10 +226,10 @@ const handleSave = async () => {
       // 更新本地信息
       Object.assign(adminInfo, formData)
       
-      // 更新 store 中的用户信息
-      if (userStore.userInfo) {
-        Object.assign(userStore.userInfo, formData)
-      }
+      userStore.setUserInfo({
+        ...(userStore.userInfo || {}),
+        ...formData
+      })
       
       isEditing.value = false
       ElMessage.success('保存成功')
@@ -259,22 +242,24 @@ const handleSave = async () => {
   })
 }
 
+const syncFormFromAdmin = () => {
+  Object.assign(formData, {
+    nickname: adminInfo.nickname || '',
+    email: adminInfo.email || '',
+    phone: adminInfo.phone || ''
+  })
+}
+
 // 头像上传成功
-const handleAvatarSuccess = async (avatarUrl) => {
-  try {
-    // 保存头像到服务器
-    await updateAvatar({ avatar: avatarUrl })
-    
-    // 更新 store 中的用户信息
-    if (userStore.userInfo) {
-      userStore.userInfo.avatar = avatarUrl
-    }
-    
-    ElMessage.success('头像已更新')
-  } catch (error) {
-    console.error('保存头像失败:', error)
-    ElMessage.error('保存头像失败')
+const handleAvatarSuccess = (avatarUrl) => {
+  const resolvedAvatar = resolveAssetUrl(avatarUrl)
+  adminInfo.avatar = resolvedAvatar
+
+  const nextUserInfo = {
+    ...(userStore.userInfo || {}),
+    avatar: resolvedAvatar
   }
+  userStore.setUserInfo(nextUserInfo)
 }
 
 // 修改密码
@@ -293,20 +278,25 @@ const handleChangePassword = async () => {
       })
       
       ElMessage.success('密码修改成功')
-      
-      // 清空表单
-      passwordForm.oldPassword = ''
-      passwordForm.newPassword = ''
-      passwordForm.confirmPassword = ''
-      passwordFormRef.value.resetFields()
+      resetPwdForm()
       
     } catch (error) {
       console.error('密码修改失败:', error)
-      ElMessage.error(error.message || '密码修改失败')
+      // 这里的错误信息处理非常重要，确保显示 "旧密码错误"
+      const msg = error.msg || (error.response?.data?.msg) || '密码修改失败'
+      ElMessage.error(msg)
     } finally {
       changingPassword.value = false
     }
   })
+}
+
+// 重置密码表单
+const resetPwdForm = () => {
+  passwordForm.oldPassword = ''
+  passwordForm.newPassword = ''
+  passwordForm.confirmPassword = ''
+  if (passwordFormRef.value) passwordFormRef.value.resetFields()
 }
 
 // 加载管理员信息
@@ -315,20 +305,28 @@ const loadAdminInfo = async () => {
     // 优先从 store 获取
     if (userStore.userInfo) {
       Object.assign(adminInfo, userStore.userInfo)
+      if (adminInfo.avatar) {
+        adminInfo.avatar = resolveAssetUrl(adminInfo.avatar)
+      }
+      syncFormFromAdmin()
     }
     
     // 从服务器获取最新信息
     const response = await getAdminInfo()
     if (response.data) {
-      Object.assign(adminInfo, response.data)
-      // 同步更新 store
-      if (userStore.userInfo) {
-        Object.assign(userStore.userInfo, response.data)
+      const nextInfo = {
+        ...response.data,
+        avatar: resolveAssetUrl(response.data.avatar)
       }
+      Object.assign(adminInfo, nextInfo)
+      userStore.setUserInfo({
+        ...(userStore.userInfo || {}),
+        ...nextInfo
+      })
+      syncFormFromAdmin()
     }
   } catch (error) {
     console.error('加载管理员信息失败:', error)
-    // 如果获取失败，使用默认值或 store 中的值
   }
 }
 
@@ -342,12 +340,14 @@ onMounted(() => {
   padding-bottom: 20px;
 }
 
-.profile-card {
-  text-align: center;
+.profile-card, .info-card {
+  height: 100%;
 }
 
+/* 左侧卡片样式 */
 .profile-header {
   padding: 20px 0;
+  text-align: center;
 }
 
 .profile-name {
@@ -384,12 +384,12 @@ onMounted(() => {
   color: #666;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 600;
+/* Tabs 内容区域样式 */
+.tab-content {
+  padding: 20px 0;
 }
 
+.profile-form {
+  max-width: 500px; /* 限制表单宽度，在大屏上更好看 */
+}
 </style>

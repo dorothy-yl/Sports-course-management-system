@@ -12,7 +12,7 @@ export const getCourseList = (params) => {
   }
   
   return request({
-    url: '/system/course/getCourse',
+    url: '/iConsoleProAdmin/system/course/getCourse',
     method: 'get',
     params: mappedParams
   })
@@ -21,7 +21,7 @@ export const getCourseList = (params) => {
 // 获取课程详情
 export const getCourseDetail = (params) => {
   return request({
-    url: '/system/course/getCourseById',
+    url: '/iConsoleProAdmin/system/course/getCourseById',
     method: 'get',
     params: params
   })
@@ -48,7 +48,7 @@ export const updateCourse = (id, data) => {
 // 删除课程
 export const deleteCourse = (params) => {
   return request({
-    url: `/system/course/deleteCourseById`,
+    url: `/iConsoleProAdmin/system/course/deleteCourseById`,
     method: 'get',
     params
   })
@@ -57,7 +57,7 @@ export const deleteCourse = (params) => {
 // 获取课程统计数据
 export const getCourseStats = () => {
   return request({
-    url: '/courses/stats',
+    url: '/iConsoleProAdmin/courses/stats',
     method: 'get'
   })
 }
@@ -65,7 +65,7 @@ export const getCourseStats = () => {
 // 获取课程热度排行
 export const getCourseHotRanking = () => {
   return request({
-    url: '/courses/hot-ranking',
+    url: '/iConsoleProAdmin/courses/hot-ranking',
     method: 'get'
   })
 }
@@ -101,7 +101,7 @@ export const addProCourse = (data) => {
   }
 
   return request({
-    url: '/system/course/addProCourse',
+    url: '/iConsoleProAdmin/system/course/addProCourse',
     method: 'post',
     data: formData
   })
@@ -110,7 +110,7 @@ export const addProCourse = (data) => {
 // 更新课程
 export const updateSysCourse = (data) => {
   return request({
-    url: '/system/course/updateSysCourse',
+    url: '/iConsoleProAdmin/system/course/updateSysCourse',
     method: 'post',
     data
   })
@@ -119,7 +119,7 @@ export const updateSysCourse = (data) => {
 // 根据课程id查询提示内容
 export const getProCourseTips = (courseId) => {
   return request({
-    url: '/system/courseTip/getProCourseTips',
+    url: '/iConsoleProAdmin/system/courseTip/getProCourseTips',
     method: 'get',
     params: { courseId }
   })
@@ -128,7 +128,7 @@ export const getProCourseTips = (courseId) => {
 // 新增课程提示内容
 export const addCourseTip = (data) => {
   return request({
-    url: '/system/courseTip/addCourseTip',
+    url: '/iConsoleProAdmin/system/courseTip/addCourseTip',
     method: 'post',
     data
   })
@@ -137,7 +137,7 @@ export const addCourseTip = (data) => {
 // 根据提示ID查询提示详情
 export const getCourseTipById = (tipId) => {
   return request({
-    url: '/system/courseTip/getCourseTipById',
+    url: '/iConsoleProAdmin/system/courseTip/getCourseTipById',
     method: 'get',
     params: { tipId }
   })
@@ -146,7 +146,7 @@ export const getCourseTipById = (tipId) => {
 // 根据提示ID删除提示
 export const deleteCourseTipById = (tipId) => {
   return request({
-    url: '/system/courseTip/deleteCourseTipById',
+    url: '/iConsoleProAdmin/system/courseTip/deleteCourseTipById',
     method: 'get',
     params: { tipId }
   })
@@ -155,7 +155,7 @@ export const deleteCourseTipById = (tipId) => {
 // 更新课程提示内容
 export const updateCourseTip = (data) => {
   return request({
-    url: '/system/courseTip/updateCourseTip',
+    url: '/iConsoleProAdmin/system/courseTip/updateCourseTip',
     method: 'post',
     data
   })
@@ -164,7 +164,7 @@ export const updateCourseTip = (data) => {
 // 批量添加课程提示
 export const batchAddCourseTip = (data) => {
   return request({
-    url: '/system/courseTip/batchAddCourseTip',
+    url: '/iConsoleProAdmin/system/courseTip/batchAddCourseTip',
     method: 'post',
     data
   })
@@ -173,7 +173,7 @@ export const batchAddCourseTip = (data) => {
 // 根据课程ID清空所有提示
 export const clearCourseTips = (courseId) => {
   return request({
-    url: '/system/courseTip/deleteCourseTipByCourseId',
+    url: '/iConsoleProAdmin/system/courseTip/deleteCourseTipByCourseId',
     method: 'get',
     params: { courseId }
   })

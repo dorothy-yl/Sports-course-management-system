@@ -60,18 +60,18 @@ export const getUserStats = () => {
   })
 }
 
-// 获取管理员信息
+// 个人信息
 export const getAdminInfo = () => {
   return request({
-    url: '/admin/profile',
+    url: '/iConsoleProAdmin/system/user/profile',
     method: 'get'
   })
 }
 
-// 更新管理员信息
+// 修改用户
 export const updateAdminInfo = (data) => {
   return request({
-    url: '/admin/profile',
+    url: '/iConsoleProAdmin/system/user/profile',
     method: 'put',
     data
   })
@@ -80,17 +80,20 @@ export const updateAdminInfo = (data) => {
 // 修改密码
 export const changePassword = (data) => {
   return request({
-    url: '/admin/change-password',
-    method: 'post',
+    url: '/iConsoleProAdmin/system/user/profile/updatePwd',
+    method: 'put',
     data
   })
 }
 
-// 更新管理员头像
-export const updateAvatar = (data) => {
+// 头像上传
+export const updateAvatar = (file) => {
+  const formData = new FormData()
+  formData.append('avatarfile', file)
+  
   return request({
-    url: '/admin/avatar',
-    method: 'put',
-    data
+    url: '/iConsoleProAdmin/system/user/profile/avatar',
+    method: 'post',
+    data: formData
   })
 }

@@ -106,7 +106,7 @@ const rules = {
 // 获取验证码
 const getCode = async () => {
   try {
-    const response = await fetch('http://192.168.1.127:1001/captchaImage')
+    const response = await fetch('http://192.168.1.127:1001/iConsoleProAdmin/captchaImage')
     
     if (!response.ok) {
       throw new Error(`请求失败：${response.status}`)
@@ -158,7 +158,7 @@ const handleLogin = async () => {
 
   try {
     // 提交登录请求到后端
-    const response = await fetch('http://192.168.1.127:1001/login', {
+    const response = await fetch('http://192.168.1.127:1001/iConsoleProAdmin/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

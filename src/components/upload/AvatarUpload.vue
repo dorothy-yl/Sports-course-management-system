@@ -9,11 +9,9 @@
       />
       <el-upload
         class="upload-trigger"
-        :action="uploadAction"
         :show-file-list="false"
         :before-upload="beforeUpload"
-        :on-success="handleSuccess"
-        :on-error="handleError"
+        :http-request="handleUpload"
         accept="image/*"
         :disabled="uploading"
       >
@@ -35,6 +33,8 @@
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UserFilled, Camera, Loading } from '@element-plus/icons-vue'
+import { updateAvatar } from '@/api/user'
+import { resolveAssetUrl } from '@/utils/format'
 
 const props = defineProps({
   modelValue: {
@@ -54,7 +54,6 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'success', 'error'])
 
 const uploading = ref(false)
-const uploadAction = import.meta.env.VITE_API_BASE_URL + '/media/upload/image'
 
 const avatarUrl = computed({
   get: () => props.modelValue,
@@ -78,33 +77,30 @@ const beforeUpload = (file) => {
   return true
 }
 
-const handleSuccess = (response, file) => {
-  uploading.value = false
+const handleUpload = async (options) => {
+  const { file } = options
   
   try {
-    // 根据实际后端返回格式调整
-    const url = response.data?.url || response.url
+    const response = await updateAvatar(file.raw || file)
     
-    // 如果没有真实的后端，使用模拟数据
-    if (!url && file.raw) {
-      avatarUrl.value = URL.createObjectURL(file.raw)
+    // 根据接口返回格式，imgUrl 是头像的 URL
+    const imgUrl = response.imgUrl || response.data?.imgUrl
+    
+    if (imgUrl) {
+      avatarUrl.value = resolveAssetUrl(imgUrl)
+      
+      ElMessage.success(response.msg || '头像上传成功')
+      emit('success', avatarUrl.value)
     } else {
-      avatarUrl.value = url
+      throw new Error('未获取到头像 URL')
     }
-    
-    ElMessage.success('头像上传成功')
-    emit('success', avatarUrl.value)
   } catch (error) {
-    console.error('处理头像失败:', error)
-    ElMessage.error('处理头像失败')
+    console.error('头像上传失败:', error)
+    ElMessage.error(error.message || error.msg || '头像上传失败，请重试')
     emit('error', error)
+  } finally {
+    uploading.value = false
   }
-}
-
-const handleError = (error) => {
-  uploading.value = false
-  ElMessage.error('头像上传失败，请重试')
-  emit('error', error)
 }
 </script>
 

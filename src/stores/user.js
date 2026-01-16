@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
   // 用户信息
-  const userInfo = ref(null)
+  const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || 'null'))
   
   // token
   const token = ref(localStorage.getItem('token') || '')
@@ -11,6 +11,11 @@ export const useUserStore = defineStore('user', () => {
   // 设置用户信息
   const setUserInfo = (info) => {
     userInfo.value = info
+    if (info) {
+      localStorage.setItem('userInfo', JSON.stringify(info))
+    } else {
+      localStorage.removeItem('userInfo')
+    }
   }
   
   // 设置 token
@@ -24,6 +29,7 @@ export const useUserStore = defineStore('user', () => {
     userInfo.value = null
     token.value = ''
     localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
   }
   
   // 登录

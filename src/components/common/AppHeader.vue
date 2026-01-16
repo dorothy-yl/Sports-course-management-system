@@ -18,7 +18,7 @@
     <div class="header-right">
       <el-dropdown @command="handleCommand">
         <div class="user-info">
-          <el-avatar :size="36" :icon="UserFilled" />
+          <el-avatar :size="36" :icon="UserFilled" :src="avatarSrc" />
           <span class="username">{{ userStore.userInfo?.nickname || '管理员' }}</span>
           <el-icon><ArrowDown /></el-icon>
         </div>
@@ -40,16 +40,20 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { UserFilled } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import BreadcrumbNav from './BreadcrumbNav.vue'
+import { resolveAssetUrl } from '@/utils/format'
 
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+
+const avatarSrc = computed(() => resolveAssetUrl(userStore.userInfo?.avatar))
 
 const handleCommand = (command) => {
   if (command === 'profile') {
