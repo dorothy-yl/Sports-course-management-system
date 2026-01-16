@@ -263,8 +263,8 @@
               </el-button>
             </template>
           </el-upload>
-          <span class="import-tip">支持 .xlsx 和 .xls 格式，请确保 Excel 文件包含：阶段、时长、开始时间、提示时间、时速、坡度、阻力 等列</span>
-        </div>
+          <span class="import-tip">支持 .xlsx 和 .xls 格式，</span>
+        </div>请确保 Excel 文件包含：阶段、时长、阶段提示、阶段提示(英文)、开始-结束时间、开始时间(分)、开始时间(秒)、提示时间(分)、提示时间(秒)、时速、坡度、阻力、功率、桨频、片段、组数、间隔、状态 等列
 
         <!-- 批量编辑表格 -->
         <div class="batch-table-section">
@@ -279,7 +279,7 @@
             style="width: 100%"
             max-height="500"
           >
-            <el-table-column type="index" label="序号" width="60" align="center" />
+            <el-table-column type="index" label="序号" width="60" align="center" fixed="left" />
             <el-table-column label="阶段" min-width="120" align="center">
               <template #default="{ row, $index }">
                 <el-input
@@ -298,7 +298,34 @@
                 />
               </template>
             </el-table-column>
-            <el-table-column label="开始时间" min-width="120" align="center">
+            <el-table-column label="阶段提示" min-width="150" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.stageTips"
+                  placeholder="请输入阶段提示"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="阶段提示(英文)" min-width="150" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.stageTipsEn"
+                  placeholder="请输入阶段提示(英文)"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="开始-结束时间" min-width="150" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.time"
+                  placeholder="如：00:42-01:51"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="开始时间(分)" min-width="120" align="center">
               <template #default="{ row, $index }">
                 <el-input
                   v-model="row.startTime"
@@ -307,12 +334,34 @@
                 />
               </template>
             </el-table-column>
-            <el-table-column label="提示时间" min-width="120" align="center">
+            <el-table-column label="开始时间(秒)" min-width="120" align="center">
+              <template #default="{ row, $index }">
+                <el-input-number
+                  v-model="row.startTimeSeconds"
+                  :min="0"
+                  placeholder="秒数"
+                  size="small"
+                  style="width: 100%"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="提示时间(分)" min-width="120" align="center">
               <template #default="{ row, $index }">
                 <el-input
                   v-model="row.tipTime"
                   placeholder="如：01:51"
                   size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="提示时间(秒)" min-width="120" align="center">
+              <template #default="{ row, $index }">
+                <el-input-number
+                  v-model="row.tipTimeSeconds"
+                  :min="0"
+                  placeholder="秒数"
+                  size="small"
+                  style="width: 100%"
                 />
               </template>
             </el-table-column>
@@ -347,6 +396,60 @@
                   placeholder="阻力"
                   size="small"
                   style="width: 100%"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="功率" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.power"
+                  placeholder="请输入功率"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="桨频" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.tempo"
+                  placeholder="请输入桨频"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="片段" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.segment"
+                  placeholder="请输入片段"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="组数" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.set"
+                  placeholder="请输入组数"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="间隔" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.interval"
+                  placeholder="请输入间隔"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="状态" min-width="100" align="center">
+              <template #default="{ row, $index }">
+                <el-input
+                  v-model="row.state"
+                  placeholder="请输入状态"
+                  size="small"
                 />
               </template>
             </el-table-column>
@@ -788,15 +891,26 @@ const handleBatchAdd = () => {
     return
   }
   
-  // 初始化 5 行空数据
+  // 初始化 5 行空数据，包含所有字段
   batchList.value = Array.from({ length: 5 }, () => ({
     stage: '',
     duration: '',
+    stageTips: '',
+    stageTipsEn: '',
+    time: '',
     startTime: '',
+    startTimeSeconds: null,
     tipTime: '',
+    tipTimeSeconds: null,
     speed: null,
     slope: null,
-    resistance: null
+    resistance: null,
+    power: '',
+    tempo: '',
+    segment: '',
+    set: '',
+    interval: '',
+    state: ''
   }))
   
   batchDialogVisible.value = true
@@ -807,11 +921,22 @@ const handleAddRow = () => {
   batchList.value.push({
     stage: '',
     duration: '',
+    stageTips: '',
+    stageTipsEn: '',
+    time: '',
     startTime: '',
+    startTimeSeconds: null,
     tipTime: '',
+    tipTimeSeconds: null,
     speed: null,
     slope: null,
-    resistance: null
+    resistance: null,
+    power: '',
+    tempo: '',
+    segment: '',
+    set: '',
+    interval: '',
+    state: ''
   })
 }
 
@@ -845,16 +970,32 @@ const handleExcelChange = (file) => {
       }
       
       // 映射 Excel 列到数据字段
-      // 支持多种可能的列名
+      // 支持多种可能的列名（包括中文、驼峰、带空格的小写英文等格式）
       const mappedData = jsonData.map(row => {
         const item = {
+          // 课程名称：兼容多种格式（包括特殊表头如 'course namecourse name'）
+          // 优先匹配标准格式，然后匹配特殊格式
+          courseName: row['课程名称'] || row['courseName'] || row['CourseName'] || row['course name'] || row['course namecourse name'] || row['Course Name'] || row['COURSE NAME'] || '',
+          // 课程ID：兼容多种格式（虽然通常从路由获取，但Excel中可能也有）
+          courseId: row['课程ID'] || row['courseId'] || row['CourseId'] || row['course id'] || row['Course Id'] || row['COURSE ID'] || null,
           stage: row['阶段'] || row['stage'] || row['Stage'] || '',
           duration: row['时长'] || row['duration'] || row['Duration'] || '',
-          startTime: row['开始时间'] || row['startTime'] || row['StartTime'] || row['开始时间(分)'] || '',
-          tipTime: row['提示时间'] || row['tipTime'] || row['TipTime'] || row['提示时间(分)'] || '',
+          startTime: row['开始时间'] || row['开始时间(分)'] || row['startTime'] || row['StartTime'] || row['start time'] || row['Start Time'] || '',
+          tipTime: row['提示时间'] || row['提示时间(分)'] || row['tipTime'] || row['TipTime'] || row['tip time'] || row['Tip Time'] || '',
           speed: row['时速'] || row['speed'] || row['Speed'] || null,
           slope: row['坡度'] || row['slope'] || row['Slope'] || null,
-          resistance: row['阻力'] || row['resistance'] || row['Resistance'] || null
+          resistance: row['阻力'] || row['resistance'] || row['Resistance'] || null,
+          stageTips: row['阶段提示'] || row['中文提示'] || row['stageTips'] || row['StageTips'] || '',
+          stageTipsEn: row['阶段提示(英文)'] || row['阶段提示英文'] || row['英文提示'] || row['stageTipsEn'] || row['StageTipsEn'] || '',
+          power: row['功率'] || row['power'] || row['Power'] || '',
+          tempo: row['桨频'] || row['tempo'] || row['Tempo'] || '',
+          segment: row['片段'] || row['segment'] || row['Segment'] || '',
+          set: row['组数'] || row['set'] || row['Set'] || '',
+          interval: row['间隔'] || row['interval'] || row['Interval'] || '',
+          state: row['状态'] || row['state'] || row['State'] || '',
+          time: row['开始-结束时间'] || row['time'] || row['Time'] || '',
+          startTimeSeconds: row['开始时间(秒)'] || row['开始时间秒'] || row['startTimeSeconds'] || row['StartTimeSeconds'] || row['start time seconds'] || row['Start Time Seconds'] || null,
+          tipTimeSeconds: row['提示时间(秒)'] || row['提示时间秒'] || row['tipTimeSeconds'] || row['TipTimeSeconds'] || row['tip time seconds'] || row['Tip Time Seconds'] || null
         }
         
         // 处理数字类型
@@ -869,6 +1010,15 @@ const handleExcelChange = (file) => {
         if (item.resistance !== null && item.resistance !== undefined && item.resistance !== '') {
           item.resistance = Number(item.resistance)
           if (isNaN(item.resistance)) item.resistance = null
+        }
+        // 处理秒数字段
+        if (item.startTimeSeconds !== null && item.startTimeSeconds !== undefined && item.startTimeSeconds !== '') {
+          item.startTimeSeconds = Number(item.startTimeSeconds)
+          if (isNaN(item.startTimeSeconds)) item.startTimeSeconds = null
+        }
+        if (item.tipTimeSeconds !== null && item.tipTimeSeconds !== undefined && item.tipTimeSeconds !== '') {
+          item.tipTimeSeconds = Number(item.tipTimeSeconds)
+          if (isNaN(item.tipTimeSeconds)) item.tipTimeSeconds = null
         }
         
         return item
@@ -908,7 +1058,10 @@ const handleBatchSubmit = async () => {
   // 过滤掉完全空的行
   const validList = batchList.value.filter(item => {
     return item.stage || item.duration || item.startTime || item.tipTime || 
-           item.speed !== null || item.slope !== null || item.resistance !== null
+           item.stageTips || item.stageTipsEn || item.time || item.power || item.tempo ||
+           item.segment || item.set || item.interval || item.state ||
+           item.speed !== null || item.slope !== null || item.resistance !== null ||
+           item.startTimeSeconds !== null || item.tipTimeSeconds !== null
   })
   
   if (validList.length === 0) {
@@ -919,25 +1072,35 @@ const handleBatchSubmit = async () => {
   // 为每条数据添加 courseId 和 courseName
   const courseIdNum = parseInt(courseId)
   const submitData = validList.map(item => {
+    // 优先使用页面上的标题，如果为空（比如首次添加），则使用 Excel 里的名字
+    const finalCourseName = courseName.value || item.courseName || ''
+    
     const dataItem = {
       courseId: courseIdNum,
-      courseName: courseName.value || ''
+      courseName: finalCourseName
     }
     
-    // 只添加有值的字段
-    if (item.stage) dataItem.stage = item.stage.trim()
-    if (item.duration) dataItem.duration = item.duration.trim()
-    if (item.startTime) dataItem.startTime = item.startTime.trim()
-    if (item.tipTime) dataItem.tipTime = item.tipTime.trim()
-    if (item.speed !== null && item.speed !== undefined && item.speed !== '') {
-      dataItem.speed = Math.floor(Number(item.speed))
-    }
-    if (item.slope !== null && item.slope !== undefined && item.slope !== '') {
-      dataItem.slope = Number(item.slope)
-    }
-    if (item.resistance !== null && item.resistance !== undefined && item.resistance !== '') {
-      dataItem.resistance = Math.floor(Number(item.resistance))
-    }
+    // 字符串类型字段（去除首尾空格，空字符串不传递）
+    const stringFields = ['stage', 'duration', 'stageTips', 'stageTipsEn', 'time', 'startTime', 'tipTime', 'power', 'tempo', 'segment', 'set', 'interval', 'state']
+    stringFields.forEach(field => {
+      const value = item[field]
+      if (value && typeof value === 'string' && value.trim()) {
+        dataItem[field] = value.trim()
+      }
+    })
+    
+    // 整数类型字段（确保是整数，0 也是有效值）
+    const integerFields = ['startTimeSeconds', 'tipTimeSeconds', 'speed', 'slope', 'resistance']
+    integerFields.forEach(field => {
+      const value = item[field]
+      if (value !== null && value !== undefined && value !== '') {
+        const numValue = Number(value)
+        if (!isNaN(numValue)) {
+          // 转换为整数（向下取整）
+          dataItem[field] = Math.floor(numValue)
+        }
+      }
+    })
     
     return dataItem
   })
